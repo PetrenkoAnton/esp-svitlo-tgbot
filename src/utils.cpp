@@ -57,7 +57,7 @@ CheckResult checkConnectionStatus(StatusData& data)
     EEPROM.put(0, data);
     EEPROM.commit();
   }
-  return {changed, message};
+  return CheckResult{changed, message};
 }
 
 void postStatusToChannel(String status) {
@@ -72,7 +72,7 @@ void postStatusToChannel(String status) {
 
 void clearEEPROMData()
 {
-  for (int i = 0; i < EEPROM.length(); i++) {
+  for (size_t i = 0; i < EEPROM.length(); i++) {
     EEPROM.write(i, 0xFF); 
   }
 }

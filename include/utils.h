@@ -1,7 +1,7 @@
 #pragma once
 
-enum Status { CONNECTED, DISCONNECTED };
-struct StatusData { Status status; time_t timestamp; unsigned long counter; };
+enum Status { UNDEFINED, DISCONNECTED, CONNECTED };
+struct StatusData { Status status; time_t timestamp; unsigned short counter; };
 struct CheckResult { bool changed; String message; };
 
 extern StatusData status_data;

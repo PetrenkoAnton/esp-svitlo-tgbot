@@ -28,7 +28,7 @@ void setup()
   Serial.begin(BAUD_RATE);
   #endif
 
-  EEPROM.begin(12);
+  EEPROM.begin(sizeof(status_data));
 
   EEPROM.get(0, status_data);
 

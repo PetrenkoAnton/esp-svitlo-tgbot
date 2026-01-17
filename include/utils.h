@@ -21,8 +21,4 @@ String format_ping_message();
 
 bool is_connected_to_check_ip();
 void save_status_data(const StatusData& data);
-void debug_print(const String& msg);
 void send_message(const String& text, const String& chatID);
-void connect_to_wifi();
-void init_bot();
-void send_startup_message();

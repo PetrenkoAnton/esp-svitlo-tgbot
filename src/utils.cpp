@@ -65,8 +65,9 @@ void post_status_to_channel(String status) {
 void clear_eeprom_data()
 {
   for (size_t i = 0; i < EEPROM.length(); i++) {
-    EEPROM.write(i, 0xFF); 
+    EEPROM.write(i, 0);
   }
+  EEPROM.commit();
 }
 
 String format_ping_message()
@@ -86,54 +87,11 @@ void save_status_data(const StatusData& data)
   EEPROM.commit();
 }
 
-void debug_print(const String& msg)
-{
-  #ifdef DEBUG
-  Serial.println(msg);
-  #endif
-}
-
 void send_message(const String& text, const String& chatID)
 {
   fb::Message message;
   message.text = text;
   message.chatID = chatID;
-  debug_print(text);
+
   bot.sendMessage(message);
-}
-
-void connect_to_wifi()
-{
-  #ifdef DEBUG
-  unsigned short i = 1;
-  #endif
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    #ifdef DEBUG
-    debug_print("Connecting to WiFi... (" + String(i++) + ")");
-    #endif
-  }
-}
-
-void init_bot()
-{
-  bot.attachUpdate(handle);
-  bot.setToken(F(BOT_TOKEN));
-  bot.setPollMode(fb::Poll::Long, 20000);
-  bot.skipUpdates(-10);
-}
-
-void send_startup_message()
-{
-  send_message("Мікроконтролер підключено", CHANNEL_ID);
-  #ifdef DEBUG
-  unsigned short i = 1;
-  #endif
-  while (!bot.lastBotMessage())
-  {
-    delay(500);
-    debug_print("Connecting to Telegram... (" + String(i++) + ")");
-  }
 }

@@ -55,6 +55,8 @@ void message_builder(String text, fb::Update &u)
 
 String build_status_info()
 {
+  Serial.println("StatusData: " + String(status_data.status) + " | " + String(status_data.timestamp) + " | " + String(status_data.counter));
+
   String info = format_ping_message() + "\n\n";
   info += "IP: " + WiFi.localIP().toString() + "\n";
   info += "EEPROM rewrites: " + String(status_data.counter);
@@ -63,7 +65,6 @@ String build_status_info()
 
 void perform_initial_check(StatusData& status_data)
 {
-  debug_print("UNDEFINED status, performing initial check...");
   bool success = is_connected_to_check_ip();
   status_data.status = success ? CONNECTED : DISCONNECTED;
   status_data.timestamp = NTP.getUnix();
@@ -74,13 +75,9 @@ void perform_initial_check(StatusData& status_data)
 
 void perform_regular_check(StatusData& status_data)
 {
-  debug_print("Performing regular status check...");
   CheckResult result = check_connection_status(status_data);
   if (result.changed) {
-    debug_print("Status changed, posting update to channel...");
     post_status_to_channel(result.message);
-  } else {
-    debug_print("No status change.");
   }
 }
 

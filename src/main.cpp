@@ -23,15 +23,39 @@ FastBot2 bot;
 void setup()
 {
   #ifdef DEBUG
+  unsigned short i = 1;
   Serial.begin(BAUD_RATE);
   #endif
 
   EEPROM.begin(sizeof(status_data));
   EEPROM.get(0, status_data);
 
-  connect_to_wifi();
-  init_bot();
-  send_startup_message();
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    #ifdef DEBUG
+    Serial.println("Connecting to WiFi... (" + String(i++) + ")");
+    #endif
+  }
+
+  bot.attachUpdate(handle);
+  bot.setToken(F(BOT_TOKEN));
+  bot.setPollMode(fb::Poll::Long, 20000);
+  bot.skipUpdates(-10);
+
+  send_message("Мікроконтролер підключено", CHANNEL_ID);
+
+  #ifdef DEBUG
+  i = 1;
+  #endif
+  while (!bot.lastBotMessage())
+  {
+    delay(500);
+    #ifdef DEBUG
+    Serial.println("Connecting to Telegram... (" + String(i++) + ")");
+    #endif
+  }
 }
 
 void loop()

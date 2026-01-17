@@ -13,6 +13,7 @@ String formatDuration(time_t seconds);
 String formatCurrentMessage(bool success, time_t duration);
 String formatChangeMessage(bool success, time_t duration);
 void postStatusToChannel(String status);
+void clearEEPROMData();
 #ifdef CLEAR_EEPROM
 void clearEEPROMData();
 #endif

@@ -1,12 +1,13 @@
 #include <Arduino.h>
 #include <FastBot2.h>
 
-#include <GyverNTP.h>
 #include <EEPROM.h>
 #ifdef ESP8266
 #include <ESP8266Ping.h>
+#include <ESP8266WiFi.h>
 #else
 #include <ESP32Ping.h>
+#include <WiFi.h>
 #endif
 
 #include "handler.h"
@@ -27,10 +28,6 @@ void setup()
 
   EEPROM.begin(12);
 
-  #ifdef CLEAR_EEPROM
-  clearEEPROMData();
-  #endif
-
   EEPROM.get(0, currentData);
 
   WiFi.begin(WIFI_SSID, WIFI_PASS);
@@ -39,20 +36,6 @@ void setup()
     delay(500);
     #ifdef DEBUG
     Serial.println("Connecting to WiFi... (" + String(i++) + ")");
-    #endif
-  }
-
-  NTP.begin(GMT_OFFSET); 
-  
-  #ifdef DEBUG
-  i = 1;
-  #endif
-
-  while(!NTP.updateNow())
-  {
-    delay(1000);
-    #ifdef DEBUG
-    Serial.println("Connecting to NTP... [" + String(i++) + "]");
     #endif
   }
 
@@ -99,7 +82,6 @@ void setup()
 void loop()
 {
   bot.tick();
-  NTP.tick();
 
   if (millis() - lastCheck > INTERVAL * 1000UL) {
     CheckResult res = checkConnectionStatus(currentData);

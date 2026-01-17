@@ -1,8 +1,7 @@
 #include <FastBot2.h>
 #include "handler.h"
 #include "utils.h"
-#include <GyverNTP.h>
-#include "ESP8266WiFi.h"
+#include <ESP8266WiFi.h>
 #ifdef ESP8266
 #include <ESP8266Ping.h>
 #else
@@ -14,6 +13,8 @@ extern FastBot2 bot;
 
 const uint32_t CMD_START = "/start"_h;
 const uint32_t CMD_STATUS = "/status"_h;
+const uint32_t CMD_CLEAR_EEPROM = "/clear_eeprom"_h;
+const uint32_t CMD_REWRITE_EEPROM = "/rewrite_eeprom"_h;
 
 void handle(fb::Update &u)
 {
@@ -29,7 +30,7 @@ void handle_message(fb::Update &u)
   uint32_t cmd = u.message().text().hash();
   switch (cmd) {
     case CMD_START:
-      message_builder("Available commands:\n\n/start - Show this message\n/status - Get system status", u);
+      message_builder("Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data\n/rewrite_eeprom - Rewrite current data to EEPROM", u);
       break;
     case CMD_STATUS: {
       String info = checkConnectionStatus(currentData).message + "\n\n";
@@ -38,6 +39,15 @@ void handle_message(fb::Update &u)
       message_builder(info, u);
       break;
     }
+    case CMD_CLEAR_EEPROM:
+      clearEEPROMData();
+      message_builder("EEPROM cleared", u);
+      break;
+    case CMD_REWRITE_EEPROM:
+      EEPROM.put(0, currentData);
+      EEPROM.commit();
+      message_builder("EEPROM rewritten", u);
+      break;
     default:
       // Ignore all other commands and messages
       break;

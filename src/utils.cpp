@@ -14,7 +14,7 @@ String format_status_message(bool success)
   return success ? "Світло є" : "Світла немає";
 }
 
-String formatDuration(time_t seconds)
+String format_duration(time_t seconds)
 {
   int hours = seconds / 3600;
   int minutes = (seconds % 3600) / 60;
@@ -23,14 +23,14 @@ String formatDuration(time_t seconds)
 
 String format_current_message(bool success, time_t duration)
 {
-  String duration_str = formatDuration(duration);
+  String duration_str = format_duration(duration);
   if (success) return "Світло є вже " + duration_str;
   else return "Світла немає вже " + duration_str;
 }
 
 String format_change_message(bool success, time_t duration)
 {
-  String duration_str = formatDuration(duration);
+  String duration_str = format_duration(duration);
   if (success) return "Світло з'явилось.\nСвітла не було " + duration_str;
   else return "Світло зникло.\nСвітло було " + duration_str;
 }
@@ -75,4 +75,9 @@ void clear_eeprom_data()
   for (size_t i = 0; i < EEPROM.length(); i++) {
     EEPROM.write(i, 0xFF); 
   }
+}
+
+bool is_connected()
+{
+  return status_data.status == CONNECTED;
 }

@@ -39,9 +39,7 @@ CheckResult check_connection_status(StatusData& data)
 {
   time_t now = NTP.getUnix();
   time_t duration = now - data.timestamp;
-  String ip = CHECK_IP;
-  ip.trim();
-  bool success = Ping.ping(ip.c_str());
+  bool success = Ping.ping(CHECK_IP);
   Status new_status = success ? CONNECTED : DISCONNECTED;
   bool changed = (new_status != data.status);
   String message;

@@ -74,6 +74,7 @@ void loop()
   NTP.tick();
 
   if (timer(timer_expire, INTERVAL)) {
+    Serial.println("Checking status...");
     handle_status_check();
   }
 }

@@ -8,8 +8,10 @@
 #include <ESP32Ping.h>
 #endif
 #include <EEPROM.h>
+#include <GyverNTP.h>
 
 extern FastBot2 bot;
+extern GyverNTP NTP;
 
 const uint32_t CMD_START = "/start"_h;
 const uint32_t CMD_STATUS = "/status"_h;
@@ -68,9 +70,7 @@ void message_builder(String text, fb::Update &u)
 void handle_status_check()
 {
   if (status_data.status == UNDEFINED) {
-    String ip = CHECK_IP;
-    ip.trim();
-    bool success = Ping.ping(ip.c_str());
+    bool success = Ping.ping(CHECK_IP);
     status_data.status = success ? CONNECTED : DISCONNECTED;
     status_data.timestamp = NTP.getUnix();
     EEPROM.put(0, status_data);

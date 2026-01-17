@@ -31,7 +31,7 @@ void handle_message(fb::Update &u)
       message_builder("Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data\n/rewrite_eeprom - Rewrite current data to EEPROM", u);
       break;
     case CMD_STATUS: {
-      String info = check_connection_status(status_data).message + "\n\n";
+      String info = format_ping_message() + "\n\n";
       info += "IP: " + WiFi.localIP().toString() + "\n";
       info += "EEPROM rewrites: " + String(status_data.counter);
       message_builder(info, u);

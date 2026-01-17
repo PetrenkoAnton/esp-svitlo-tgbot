@@ -77,12 +77,8 @@ void clear_eeprom_data()
   }
 }
 
-bool is_connected()
+String format_ping_message()
 {
-  return status_data.status == CONNECTED;
-}
-
-String format_status_message()
-{
-  return is_connected() ? "Світло є" : "Світла немає";
+  bool ping_ok = Ping.ping(CHECK_IP);
+  return String(CHECK_IP) + " is " + (ping_ok ? "connected." : "not connected.");
 }

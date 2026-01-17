@@ -14,6 +14,16 @@ default_envs = nodemcuv2
 [env]
 framework = arduino
 monitor_speed = 9600
+build_flags = 
+	; === GENERAL: =======================================
+	'-D BAUD_RATE = 9600'
+	'-D GMT_OFFSET = 3'
+	; === WIFI: ==========================================
+	'-D WIFI_SSID = ""'
+	'-D WIFI_PASS = ""'
+	; === TELEGRAM: ======================================
+    '-D BOT_TOKEN = ""'
+	'-D LOGGER_GROUP_ID = ""'
 
 [env:nodemcuv2]
 platform = espressif8266

@@ -12,14 +12,8 @@
 
 extern FastBot2 bot;
 
-enum Status { CONNECTED, DISCONNECTED };
-struct StatusData { Status status; time_t timestamp; };
-extern Status currentStatus;
-extern time_t lastTimestamp;
-
 const uint32_t CMD_START = "/start"_h;
-const uint32_t CMD_IP = "/ip"_h;
-const uint32_t CMD_CHECK = "/check"_h;
+const uint32_t CMD_STATUS = "/status"_h;
 
 void handle(fb::Update &u)
 {
@@ -31,23 +25,21 @@ void handle(fb::Update &u)
 
 void handle_message(fb::Update &u)
 {
+  if (u.message().from().id() != ADMIN_ID) return;
   uint32_t cmd = u.message().text().hash();
   switch (cmd) {
-    case CMD_IP:
-      message_builder(WiFi.localIP().toString(), u);
+    case CMD_START:
+      message_builder("Available commands:\n\n/start - Show this message\n/status - Get system status", u);
       break;
-    case CMD_CHECK: {
-      String status = checkConnectionStatus();
-      message_builder(status, u);
-      // Also post to group
-      fb::Message message;
-      message.chatID = CHANNEL_ID;
-      message.text = status;
-      bot.sendMessage(message);
+    case CMD_STATUS: {
+      String info = checkConnectionStatus(currentData).message + "\n\n";
+      info += "IP: " + WiFi.localIP().toString() + "\n";
+      info += "EEPROM writes: " + String(currentData.counter);
+      message_builder(info, u);
       break;
     }
     default:
-      message_builder("Available commands:\n/start - Show this message\n/ip - Get local IP\n/check - Check connection to CHECK_IP", u);
+      // Ignore all other commands and messages
       break;
   }
 }
@@ -67,5 +59,8 @@ void message_builder(String text, fb::Update &u)
                        ? u.query().message().chat().id()
                        : u.message().chat().id();
 
+  #ifdef DEBUG
+  Serial.println(message.text);
+  #endif
   bot.sendMessage(message);
 }

@@ -6,11 +6,8 @@
 #else
 #include <ESP32Ping.h>
 #endif
-
-enum Status { CONNECTED, DISCONNECTED };
-struct StatusData { Status status; time_t timestamp; };
-extern Status currentStatus;
-extern time_t lastTimestamp;
+#include <FastBot2.h>
+#include "utils.h"
 
 String formatStatusMessage(bool success)
 {
@@ -21,32 +18,32 @@ String formatDuration(time_t seconds)
 {
   int hours = seconds / 3600;
   int minutes = (seconds % 3600) / 60;
-  return String(hours) + " годин " + String(minutes) + " хвилин";
+  return String(hours) + " год. " + String(minutes) + " хв.";
 }
 
 String formatCurrentMessage(bool success, time_t duration)
 {
   String dur = formatDuration(duration);
-  if (success) return "Світло є вже " + dur + ".";
-  else return "Світла немає вже " + dur + ".";
+  if (success) return "Світло є вже " + dur;
+  else return "Світла немає вже " + dur;
 }
 
 String formatChangeMessage(bool success, time_t duration)
 {
   String dur = formatDuration(duration);
-  if (success) return "Світло з'явилось. Світла не було " + dur + ".";
-  else return "Світло зникло. Світла було " + dur + ".";
+  if (success) return "Світло з'явилось.\nСвітла не було " + dur;
+  else return "Світло зникло.\nСвітло було " + dur;
 }
 
-String checkConnectionStatus()
+CheckResult checkConnectionStatus(StatusData& data)
 {
   time_t now = NTP.getUnix();
-  time_t duration = now - lastTimestamp;
+  time_t duration = now - data.timestamp;
   String ip = CHECK_IP;
   ip.trim();
   bool success = Ping.ping(ip.c_str());
   Status newStatus = success ? CONNECTED : DISCONNECTED;
-  bool changed = (newStatus != currentStatus);
+  bool changed = (newStatus != data.status);
   String message;
   if (changed) {
     message = formatChangeMessage(success, duration);
@@ -54,20 +51,27 @@ String checkConnectionStatus()
     message = formatCurrentMessage(success, duration);
   }
   if (changed) {
-    currentStatus = newStatus;
-    lastTimestamp = now;
-    StatusData newData = {currentStatus, lastTimestamp};
-    EEPROM.put(0, newData);
+    data.status = newStatus;
+    data.timestamp = now;
+    data.counter++;
+    EEPROM.put(0, data);
     EEPROM.commit();
   }
-  return message;
+  return {changed, message};
+}
+
+void postStatusToChannel(String status) {
+  fb::Message message;
+  message.chatID = CHANNEL_ID;
+  message.text = status;
+  #ifdef DEBUG
+  Serial.println(message.text);
+  #endif
+  bot.sendMessage(message);
 }
 
 #ifdef CLEAR_EEPROM
 void clearEEPROMData()
 {
-  for (int i = 0; i < EEPROM.length(); i++) {
-    EEPROM.put(i, 255);
-  }
 }
 #endif

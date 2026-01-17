@@ -12,10 +12,8 @@
 #include "handler.h"
 #include "utils.h"
 
-enum Status { CONNECTED, DISCONNECTED };
-struct StatusData { Status status; time_t timestamp; };
-Status currentStatus;
-time_t lastTimestamp;
+StatusData currentData;
+unsigned long lastCheck;
 
 FastBot2 bot;
 fb::Message message;
@@ -27,16 +25,13 @@ void setup()
   #endif
   Serial.begin(BAUD_RATE);
 
-  EEPROM.begin(8);
+  EEPROM.begin(12);
 
   #ifdef CLEAR_EEPROM
   clearEEPROMData();
   #endif
 
-  StatusData savedData;
-  EEPROM.get(0, savedData);
-  currentStatus = savedData.status;
-  lastTimestamp = savedData.timestamp;
+  EEPROM.get(0, currentData);
 
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED)
@@ -70,6 +65,9 @@ void setup()
   message.chatID = CHANNEL_ID;
   message.text = "Мікроконтролер підключено";
 
+  #ifdef DEBUG
+  Serial.println(message.text);
+  #endif
   bot.sendMessage(message);
 
   #ifdef DEBUG
@@ -85,15 +83,29 @@ void setup()
   }
 
   // Check connection status after setup
-  String statusMsg = checkConnectionStatus();
+  CheckResult res = checkConnectionStatus(currentData);
+  String statusMsg = res.message;
   fb::Message statusMessage;
   statusMessage.chatID = CHANNEL_ID;
   statusMessage.text = statusMsg;
+  #ifdef DEBUG
+  Serial.println(statusMessage.text);
+  #endif
   bot.sendMessage(statusMessage);
+
+  lastCheck = millis();
 }
 
 void loop()
 {
   bot.tick();
   NTP.tick();
+
+  if (millis() - lastCheck > INTERVAL * 1000UL) {
+    CheckResult res = checkConnectionStatus(currentData);
+    if (res.changed) {
+      postStatusToChannel(res.message);
+    }
+    lastCheck = millis();
+  }
 }

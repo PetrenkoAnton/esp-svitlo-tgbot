@@ -20,7 +20,7 @@ build_flags =
 	; '-D CLEAR_EEPROM'
 	'-D BAUD_RATE = 9600'
 	'-D GMT_OFFSET = 3'
-	'-D INTERVAL = 60'
+	'-D INTERVAL = 60' ; in seconds
 	; === WIFI: ==========================================
 	'-D WIFI_SSID = ""'
 	'-D WIFI_PASS = ""'
@@ -29,6 +29,7 @@ build_flags =
 	; === TELEGRAM: ======================================
     '-D BOT_TOKEN = ""'
 	'-D CHANNEL_ID = ""'
+	'-D ADMIN_ID = ""'
 
 [env:nodemcuv2]
 platform = espressif8266

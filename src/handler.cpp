@@ -1,5 +1,6 @@
 #include <FastBot2.h>
 #include "handler.h"
+#include "utils.h"
 #include <GyverNTP.h>
 #include "ESP8266WiFi.h"
 #ifdef ESP8266
@@ -22,7 +23,7 @@ const uint32_t CMD_CHECK = "/check"_h;
 
 void handle(fb::Update &u)
 {
-  if (u.isMessage() && (u.message().text().hash() == "/start"_h || u.message().text().hash() == "/ip"_h || u.message().text().hash() == "/check"_h))
+  if (u.isMessage())
     handle_message(u);
   if (u.isQuery())
     handle_query(u);
@@ -36,18 +37,7 @@ void handle_message(fb::Update &u)
       message_builder(WiFi.localIP().toString(), u);
       break;
     case CMD_CHECK: {
-      String ip = CHECK_IP;
-      ip.trim();
-      bool success = Ping.ping(ip.c_str());
-      Status newStatus = success ? CONNECTED : DISCONNECTED;
-      if (newStatus != currentStatus) {
-        currentStatus = newStatus;
-        lastTimestamp = NTP.getUnix();
-        StatusData newData = {currentStatus, lastTimestamp};
-        EEPROM.put(0, newData);
-        EEPROM.commit();
-      }
-      String status = formatStatusMessage(success);
+      String status = checkConnectionStatus();
       message_builder(status, u);
       // Also post to group
       fb::Message message;
@@ -78,9 +68,4 @@ void message_builder(String text, fb::Update &u)
                        : u.message().chat().id();
 
   bot.sendMessage(message);
-}
-
-String formatStatusMessage(bool success)
-{
-  return success ? "Світло є" : "Світла немає";
 }

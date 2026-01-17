@@ -10,16 +10,12 @@
 #endif
 
 #include "handler.h"
+#include "utils.h"
 
 enum Status { CONNECTED, DISCONNECTED };
 struct StatusData { Status status; time_t timestamp; };
 Status currentStatus;
 time_t lastTimestamp;
-
-String formatStatusMessage(bool success)
-{
-  return success ? "Світло є" : "Світла немає";
-}
 
 FastBot2 bot;
 fb::Message message;
@@ -84,18 +80,7 @@ void setup()
   }
 
   // Check connection status after setup
-  String ip = CHECK_IP;
-  ip.trim();
-  bool success = Ping.ping(ip.c_str());
-  Status newStatus = success ? CONNECTED : DISCONNECTED;
-  if (newStatus != currentStatus) {
-    currentStatus = newStatus;
-    lastTimestamp = NTP.getUnix();
-    StatusData newData = {currentStatus, lastTimestamp};
-    EEPROM.put(0, newData);
-    EEPROM.commit();
-  }
-  String statusMsg = formatStatusMessage(success);
+  String statusMsg = checkConnectionStatus();
   fb::Message statusMessage;
   statusMessage.chatID = CHANNEL_ID;
   statusMessage.text = statusMsg;

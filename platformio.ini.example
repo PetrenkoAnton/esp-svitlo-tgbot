@@ -19,6 +19,7 @@ build_flags =
 	; '-D DEBUG'
 	'-D BAUD_RATE = 9600'
 	'-D GMT_OFFSET = 3'
+	'-D INTERVAL = 60'
 	; === WIFI: ==========================================
 	'-D WIFI_SSID = ""'
 	'-D WIFI_PASS = ""'

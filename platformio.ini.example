@@ -17,6 +17,7 @@ monitor_speed = 9600
 build_flags = 
 	; === GENERAL: =======================================
 	; '-D DEBUG'
+	; '-D CLEAR_EEPROM'
 	'-D BAUD_RATE = 9600'
 	'-D GMT_OFFSET = 3'
 	'-D INTERVAL = 60'

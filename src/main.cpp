@@ -28,6 +28,11 @@ void setup()
   Serial.begin(BAUD_RATE);
 
   EEPROM.begin(8);
+
+  #ifdef CLEAR_EEPROM
+  clearEEPROMData();
+  #endif
+
   StatusData savedData;
   EEPROM.get(0, savedData);
   currentStatus = savedData.status;
@@ -63,7 +68,7 @@ void setup()
   bot.skipUpdates(-10);
 
   message.chatID = CHANNEL_ID;
-  message.text = "ESPxx connected";
+  message.text = "Мікроконтролер підключено";
 
   bot.sendMessage(message);
 

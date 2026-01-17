@@ -2,12 +2,6 @@
 #include "handler.h"
 #include "utils.h"
 #include <ESP8266WiFi.h>
-#ifdef ESP8266
-#include <ESP8266Ping.h>
-#else
-#include <ESP32Ping.h>
-#endif
-#include <EEPROM.h>
 #include <GyverNTP.h>
 
 extern FastBot2 bot;
@@ -17,6 +11,10 @@ const uint32_t CMD_START = "/start"_h;
 const uint32_t CMD_STATUS = "/status"_h;
 const uint32_t CMD_CLEAR_EEPROM = "/clear_eeprom"_h;
 const uint32_t CMD_REWRITE_EEPROM = "/rewrite_eeprom"_h;
+
+const String START_MESSAGE = "Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data\n/rewrite_eeprom - Rewrite current data to EEPROM";
+const String EEPROM_CLEARED_MESSAGE = "EEPROM cleared";
+const String EEPROM_REWRITTEN_MESSAGE = "EEPROM rewritten";
 
 void handle(fb::Update &u)
 {
@@ -30,23 +28,19 @@ void handle_message(fb::Update &u)
   uint32_t cmd = u.message().text().hash();
   switch (cmd) {
     case CMD_START:
-      message_builder("Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data\n/rewrite_eeprom - Rewrite current data to EEPROM", u);
+      message_builder(START_MESSAGE, u);
       break;
-    case CMD_STATUS: {
-      String info = format_ping_message() + "\n\n";
-      info += "IP: " + WiFi.localIP().toString() + "\n";
-      info += "EEPROM rewrites: " + String(status_data.counter);
-      message_builder(info, u);
+    case CMD_STATUS:
+      message_builder(build_status_info(), u);
       break;
-    }
     case CMD_CLEAR_EEPROM:
       clear_eeprom_data();
-      message_builder("EEPROM cleared", u);
+      message_builder(EEPROM_CLEARED_MESSAGE, u);
       break;
     case CMD_REWRITE_EEPROM:
       status_data.counter++;
       save_status_data(status_data);
-      message_builder("EEPROM rewritten", u);
+      message_builder(EEPROM_REWRITTEN_MESSAGE, u);
       break;
     default:
       // Ignore all other commands and messages
@@ -57,6 +51,14 @@ void handle_message(fb::Update &u)
 void message_builder(String text, fb::Update &u)
 {
   send_message(text, String(u.message().chat().id()));
+}
+
+String build_status_info()
+{
+  String info = format_ping_message() + "\n\n";
+  info += "IP: " + WiFi.localIP().toString() + "\n";
+  info += "EEPROM rewrites: " + String(status_data.counter);
+  return info;
 }
 
 void perform_initial_check(StatusData& status_data)

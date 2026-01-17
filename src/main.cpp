@@ -40,7 +40,6 @@ void loop()
   NTP.tick();
 
   if (timer(timer_expire, INTERVAL)) {
-    debug_print("Checking status...");
     handle_status_check(status_data);
   }
 }

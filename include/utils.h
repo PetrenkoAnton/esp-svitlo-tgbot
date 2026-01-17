@@ -7,10 +7,10 @@ struct CheckResult { bool changed; String message; };
 extern StatusData status_data;
 extern FastBot2 bot;
 
-String formatStatusMessage(bool success);
-CheckResult checkConnectionStatus(StatusData& data);
+String format_status_message(bool success);
+CheckResult check_connection_status(StatusData& data);
 String formatDuration(time_t seconds);
-String formatCurrentMessage(bool success, time_t duration);
-String formatChangeMessage(bool success, time_t duration);
-void postStatusToChannel(String status);
-void clearEEPROMData();
+String format_current_message(bool success, time_t duration);
+String format_change_message(bool success, time_t duration);
+void post_status_to_channel(String status);
+void clear_eeprom_data();

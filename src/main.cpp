@@ -74,9 +74,9 @@ void loop()
   NTP.tick();
 
   if (timer(timer_expire, INTERVAL)) {
-    CheckResult result = checkConnectionStatus(status_data);
+    CheckResult result = check_connection_status(status_data);
     if (result.changed) {
-      postStatusToChannel(result.message);
+      post_status_to_channel(result.message);
     }
   }
 }

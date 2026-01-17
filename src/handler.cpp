@@ -20,8 +20,6 @@ void handle(fb::Update &u)
 {
   if (u.isMessage())
     handle_message(u);
-  if (u.isQuery())
-    handle_query(u);
 }
 
 void handle_message(fb::Update &u)
@@ -33,14 +31,14 @@ void handle_message(fb::Update &u)
       message_builder("Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data\n/rewrite_eeprom - Rewrite current data to EEPROM", u);
       break;
     case CMD_STATUS: {
-      String info = checkConnectionStatus(status_data).message + "\n\n";
+      String info = check_connection_status(status_data).message + "\n\n";
       info += "IP: " + WiFi.localIP().toString() + "\n";
       info += "EEPROM rewrites: " + String(status_data.counter);
       message_builder(info, u);
       break;
     }
     case CMD_CLEAR_EEPROM:
-      clearEEPROMData();
+      clear_eeprom_data();
       message_builder("EEPROM cleared", u);
       break;
     case CMD_REWRITE_EEPROM:
@@ -55,20 +53,11 @@ void handle_message(fb::Update &u)
   }
 }
 
-void handle_query(fb::Update &u)
-{
-  message_builder("Unknown query", u);
-
-  bot.answerCallbackQuery(u.query().id(), "Success");
-}
-
 void message_builder(String text, fb::Update &u)
 {
   fb::Message message;
   message.text = text;
-  message.chatID = u.isQuery()
-                       ? u.query().message().chat().id()
-                       : u.message().chat().id();
+  message.chatID = u.message().chat().id();
 
   #ifdef DEBUG
   Serial.println(message.text);

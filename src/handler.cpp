@@ -64,3 +64,23 @@ void message_builder(String text, fb::Update &u)
   #endif
   bot.sendMessage(message);
 }
+
+void handle_status_check()
+{
+  if (status_data.status == UNDEFINED) {
+    String ip = CHECK_IP;
+    ip.trim();
+    bool success = Ping.ping(ip.c_str());
+    status_data.status = success ? CONNECTED : DISCONNECTED;
+    status_data.timestamp = NTP.getUnix();
+    EEPROM.put(0, status_data);
+    EEPROM.commit();
+    String message = "Наразі світло " + String(success ? "є" : "немає") + ", (поточна тривалість невідома)";
+    post_status_to_channel(message);
+  } else {
+    CheckResult result = check_connection_status(status_data);
+    if (result.changed) {
+      post_status_to_channel(result.message);
+    }
+  }
+}

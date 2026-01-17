@@ -15,3 +15,4 @@ String format_change_message(bool success, time_t duration);
 void post_status_to_channel(String status);
 void clear_eeprom_data();
 bool is_connected();
+String format_status_message();

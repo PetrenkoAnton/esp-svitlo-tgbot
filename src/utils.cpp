@@ -81,3 +81,8 @@ bool is_connected()
 {
   return status_data.status == CONNECTED;
 }
+
+String format_status_message()
+{
+  return is_connected() ? "Світло є" : "Світла немає";
+}

@@ -25,7 +25,7 @@ build_flags =
 	'-D LOCAL_IP = "
 	; === TELEGRAM: ======================================
     '-D BOT_TOKEN = ""'
-	'-D LOGGER_GROUP_ID = ""'
+	'-D CHANNEL_ID = ""'
 
 [env:nodemcuv2]
 platform = espressif8266

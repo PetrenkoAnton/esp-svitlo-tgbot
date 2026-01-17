@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <FastBot2.h>
+#include <GyverNTP.h>
 
 #include <EEPROM.h>
 #ifdef ESP8266
@@ -12,9 +13,10 @@
 
 #include "handler.h"
 #include "utils.h"
+#include "timer.h"
 
 StatusData currentData;
-unsigned long lastCheck;
+unsigned long t;
 
 FastBot2 bot;
 fb::Message message;
@@ -64,30 +66,17 @@ void setup()
     Serial.println("Connecting to Telegram... (" + String(i++) + ")");
     #endif
   }
-
-  // Check connection status after setup
-  CheckResult res = checkConnectionStatus(currentData);
-  String statusMsg = res.message;
-  fb::Message statusMessage;
-  statusMessage.chatID = CHANNEL_ID;
-  statusMessage.text = statusMsg;
-  #ifdef DEBUG
-  Serial.println(statusMessage.text);
-  #endif
-  bot.sendMessage(statusMessage);
-
-  lastCheck = millis();
 }
 
 void loop()
 {
   bot.tick();
+  NTP.tick();
 
-  if (millis() - lastCheck > INTERVAL * 1000UL) {
+  if (timer(t, INTERVAL)) {
     CheckResult res = checkConnectionStatus(currentData);
     if (res.changed) {
       postStatusToChannel(res.message);
     }
-    lastCheck = millis();
   }
 }

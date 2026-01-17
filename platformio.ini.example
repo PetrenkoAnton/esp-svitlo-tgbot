@@ -35,6 +35,7 @@ platform = espressif8266
 board = nodemcuv2
 lib_deps = 
 	gyverlibs/FastBot2@^1.0.12
+	gyverlibs/GyverNTP@^2.2.2
 	ESP8266Ping
 
 [env:d1_mini_pro]
@@ -42,6 +43,7 @@ platform = espressif8266
 board = d1_mini_pro
 lib_deps = 
 	gyverlibs/FastBot2@^1.0.12
+	gyverlibs/GyverNTP@^2.2.2
 	ESP8266Ping
 
 [env:esp32dev]
@@ -58,4 +60,5 @@ board = esp32-s3-devkitc-1
 board_build.mcu = esp32s3
 lib_deps = 
 	gyverlibs/FastBot2@^1.0.12
+	gyverlibs/GyverNTP@^2.2.2
 	ESP32Ping

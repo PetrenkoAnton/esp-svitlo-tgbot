@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <GyverNTP.h>
 #include <EEPROM.h>
 #ifdef ESP8266
 #include <ESP8266Ping.h>
@@ -6,7 +7,6 @@
 #include <ESP32Ping.h>
 #endif
 #include <FastBot2.h>
-#include <time.h>
 #include "utils.h"
 
 String formatStatusMessage(bool success)
@@ -37,7 +37,7 @@ String formatChangeMessage(bool success, time_t duration)
 
 CheckResult checkConnectionStatus(StatusData& data)
 {
-  time_t now = millis() / 1000;
+  time_t now = NTP.getUnix();
   time_t duration = now - data.timestamp;
   String ip = CHECK_IP;
   ip.trim();

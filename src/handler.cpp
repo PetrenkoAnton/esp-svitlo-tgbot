@@ -35,7 +35,7 @@ void handle_message(fb::Update &u)
     case CMD_STATUS: {
       String info = checkConnectionStatus(current_data).message + "\n\n";
       info += "IP: " + WiFi.localIP().toString() + "\n";
-      info += "EEPROM writes: " + String(current_data.counter);
+      info += "EEPROM rewrites: " + String(current_data.counter);
       message_builder(info, u);
       break;
     }

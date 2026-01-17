@@ -32,11 +32,6 @@ void setup()
 
   EEPROM.get(0, current_data);
 
-  Serial.println("Current status: " + String(current_data.status) + ", last change at " + String(current_data.timestamp) + ", counter: " + String(current_data.counter));
-delay(10000);
-  Serial.println("Current status: " + String(current_data.status) + ", last change at " + String(current_data.timestamp) + ", counter: " + String(current_data.counter));
-  delay(10000);
-
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED)
   {

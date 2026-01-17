@@ -23,16 +23,16 @@ String formatDuration(time_t seconds)
 
 String formatCurrentMessage(bool success, time_t duration)
 {
-  String dur = formatDuration(duration);
-  if (success) return "Світло є вже " + dur;
-  else return "Світла немає вже " + dur;
+  String duration_str = formatDuration(duration);
+  if (success) return "Світло є вже " + duration_str;
+  else return "Світла немає вже " + duration_str;
 }
 
 String formatChangeMessage(bool success, time_t duration)
 {
-  String dur = formatDuration(duration);
-  if (success) return "Світло з'явилось.\nСвітла не було " + dur;
-  else return "Світло зникло.\nСвітло було " + dur;
+  String duration_str = formatDuration(duration);
+  if (success) return "Світло з'явилось.\nСвітла не було " + duration_str;
+  else return "Світло зникло.\nСвітло було " + duration_str;
 }
 
 CheckResult checkConnectionStatus(StatusData& data)
@@ -42,8 +42,8 @@ CheckResult checkConnectionStatus(StatusData& data)
   String ip = CHECK_IP;
   ip.trim();
   bool success = Ping.ping(ip.c_str());
-  Status newStatus = success ? CONNECTED : DISCONNECTED;
-  bool changed = (newStatus != data.status);
+  Status new_status = success ? CONNECTED : DISCONNECTED;
+  bool changed = (new_status != data.status);
   String message;
   if (changed) {
     message = formatChangeMessage(success, duration);
@@ -51,7 +51,7 @@ CheckResult checkConnectionStatus(StatusData& data)
     message = formatCurrentMessage(success, duration);
   }
   if (changed) {
-    data.status = newStatus;
+    data.status = new_status;
     data.timestamp = now;
     data.counter++;
     EEPROM.put(0, data);
@@ -75,5 +75,4 @@ void clearEEPROMData()
   for (int i = 0; i < EEPROM.length(); i++) {
     EEPROM.write(i, 0xFF); 
   }
-  EEPROM.commit();
 }

@@ -4,7 +4,7 @@ enum Status { CONNECTED, DISCONNECTED };
 struct StatusData { Status status; time_t timestamp; unsigned long counter; };
 struct CheckResult { bool changed; String message; };
 
-extern StatusData currentData;
+extern StatusData current_data;
 extern FastBot2 bot;
 
 String formatStatusMessage(bool success);

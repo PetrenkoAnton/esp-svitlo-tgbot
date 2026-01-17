@@ -15,8 +15,8 @@
 #include "utils.h"
 #include "timer.h"
 
-StatusData currentData;
-unsigned long t;
+StatusData current_data;
+unsigned long timer_expire;
 
 FastBot2 bot;
 fb::Message message;
@@ -25,12 +25,17 @@ void setup()
 {
   #ifdef DEBUG
   unsigned short i = 1;
-  #endif
   Serial.begin(BAUD_RATE);
+  #endif
 
   EEPROM.begin(12);
 
-  EEPROM.get(0, currentData);
+  EEPROM.get(0, current_data);
+
+  Serial.println("Current status: " + String(current_data.status) + ", last change at " + String(current_data.timestamp) + ", counter: " + String(current_data.counter));
+delay(10000);
+  Serial.println("Current status: " + String(current_data.status) + ", last change at " + String(current_data.timestamp) + ", counter: " + String(current_data.counter));
+  delay(10000);
 
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED)
@@ -73,10 +78,10 @@ void loop()
   bot.tick();
   NTP.tick();
 
-  if (timer(t, INTERVAL)) {
-    CheckResult res = checkConnectionStatus(currentData);
-    if (res.changed) {
-      postStatusToChannel(res.message);
+  if (timer(timer_expire, INTERVAL)) {
+    CheckResult result = checkConnectionStatus(current_data);
+    if (result.changed) {
+      postStatusToChannel(result.message);
     }
   }
 }

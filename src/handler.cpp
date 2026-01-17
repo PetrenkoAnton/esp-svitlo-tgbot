@@ -33,9 +33,9 @@ void handle_message(fb::Update &u)
       message_builder("Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data\n/rewrite_eeprom - Rewrite current data to EEPROM", u);
       break;
     case CMD_STATUS: {
-      String info = checkConnectionStatus(currentData).message + "\n\n";
+      String info = checkConnectionStatus(current_data).message + "\n\n";
       info += "IP: " + WiFi.localIP().toString() + "\n";
-      info += "EEPROM writes: " + String(currentData.counter);
+      info += "EEPROM writes: " + String(current_data.counter);
       message_builder(info, u);
       break;
     }
@@ -44,7 +44,8 @@ void handle_message(fb::Update &u)
       message_builder("EEPROM cleared", u);
       break;
     case CMD_REWRITE_EEPROM:
-      EEPROM.put(0, currentData);
+      current_data.counter++;
+      EEPROM.put(0, current_data);
       EEPROM.commit();
       message_builder("EEPROM rewritten", u);
       break;

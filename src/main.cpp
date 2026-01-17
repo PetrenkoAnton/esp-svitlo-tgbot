@@ -15,7 +15,7 @@
 #include "utils.h"
 #include "timer.h"
 
-StatusData current_data;
+StatusData status_data;
 unsigned long timer_expire;
 
 FastBot2 bot;
@@ -30,7 +30,7 @@ void setup()
 
   EEPROM.begin(12);
 
-  EEPROM.get(0, current_data);
+  EEPROM.get(0, status_data);
 
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED)
@@ -74,7 +74,7 @@ void loop()
   NTP.tick();
 
   if (timer(timer_expire, INTERVAL)) {
-    CheckResult result = checkConnectionStatus(current_data);
+    CheckResult result = checkConnectionStatus(status_data);
     if (result.changed) {
       postStatusToChannel(result.message);
     }

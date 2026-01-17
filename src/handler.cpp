@@ -12,8 +12,13 @@
 extern FastBot2 bot;
 
 enum Status { CONNECTED, DISCONNECTED };
-struct StatusData { Status status; DateTime datetime; };
+struct StatusData { Status status; time_t timestamp; };
 extern Status currentStatus;
+extern time_t lastTimestamp;
+
+const uint32_t CMD_START = "/start"_h;
+const uint32_t CMD_IP = "/ip"_h;
+const uint32_t CMD_CHECK = "/check"_h;
 
 void handle(fb::Update &u)
 {
@@ -25,27 +30,36 @@ void handle(fb::Update &u)
 
 void handle_message(fb::Update &u)
 {
-  if (u.message().text().hash() == "/ip"_h)
-    message_builder(WiFi.localIP().toString(), u);
-  else if (u.message().text().hash() == "/check"_h)
-  {
-    String ip = LOCAL_IP;
-    ip.trim();
-    bool success = Ping.ping(ip.c_str());
-    Status newStatus = success ? CONNECTED : DISCONNECTED;
-    if (newStatus != currentStatus) {
-      currentStatus = newStatus;
-      EEPROM.write(0, currentStatus);
-      EEPROM.commit();
+  uint32_t cmd = u.message().text().hash();
+  switch (cmd) {
+    case CMD_IP:
+      message_builder(WiFi.localIP().toString(), u);
+      break;
+    case CMD_CHECK: {
+      String ip = CHECK_IP;
+      ip.trim();
+      bool success = Ping.ping(ip.c_str());
+      Status newStatus = success ? CONNECTED : DISCONNECTED;
+      if (newStatus != currentStatus) {
+        currentStatus = newStatus;
+        lastTimestamp = NTP.getUnix();
+        StatusData newData = {currentStatus, lastTimestamp};
+        EEPROM.put(0, newData);
+        EEPROM.commit();
+      }
+      String status = formatStatusMessage(success);
+      message_builder(status, u);
+      // Also post to group
+      fb::Message message;
+      message.chatID = CHANNEL_ID;
+      message.text = status;
+      bot.sendMessage(message);
+      break;
     }
-    String status = success ? "Світло є" : "Світла немає";
-    message_builder(status, u);    // Also post to group
-    fb::Message groupMsg;
-    groupMsg.chatID = CHANNEL_ID;
-    groupMsg.text = status;
-    bot.sendMessage(groupMsg);  }
-  else
-    message_builder("Available commands:\n/start - Show this message\n/ip - Get local IP\n/check - Check connection to LOCAL_IP", u);
+    default:
+      message_builder("Available commands:\n/start - Show this message\n/ip - Get local IP\n/check - Check connection to CHECK_IP", u);
+      break;
+  }
 }
 
 void handle_query(fb::Update &u)
@@ -64,4 +78,9 @@ void message_builder(String text, fb::Update &u)
                        : u.message().chat().id();
 
   bot.sendMessage(message);
+}
+
+String formatStatusMessage(bool success)
+{
+  return success ? "Світло є" : "Світла немає";
 }

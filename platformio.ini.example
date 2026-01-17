@@ -16,13 +16,14 @@ framework = arduino
 monitor_speed = 9600
 build_flags = 
 	; === GENERAL: =======================================
+	; '-D DEBUG'
 	'-D BAUD_RATE = 9600'
 	'-D GMT_OFFSET = 3'
 	; === WIFI: ==========================================
 	'-D WIFI_SSID = ""'
 	'-D WIFI_PASS = ""'
 	; === LOCAL IP ADDRESS: ==============================
-	'-D LOCAL_IP = "
+	'-D CHECK_IP = "
 	; === TELEGRAM: ======================================
     '-D BOT_TOKEN = ""'
 	'-D CHANNEL_ID = ""'

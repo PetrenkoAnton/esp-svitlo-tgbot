@@ -45,8 +45,7 @@ void handle_message(fb::Update &u)
       break;
     case CMD_REWRITE_EEPROM:
       status_data.counter++;
-      EEPROM.put(0, status_data);
-      EEPROM.commit();
+      save_status_data(status_data);
       message_builder("EEPROM rewritten", u);
       break;
     default:
@@ -57,30 +56,37 @@ void handle_message(fb::Update &u)
 
 void message_builder(String text, fb::Update &u)
 {
-  fb::Message message;
-  message.text = text;
-  message.chatID = u.message().chat().id();
-
-  #ifdef DEBUG
-  Serial.println(message.text);
-  #endif
-  bot.sendMessage(message);
+  send_message(text, String(u.message().chat().id()));
 }
 
-void handle_status_check()
+void perform_initial_check(StatusData& status_data)
+{
+  debug_print("UNDEFINED status, performing initial check...");
+  bool success = is_connected_to_check_ip();
+  status_data.status = success ? CONNECTED : DISCONNECTED;
+  status_data.timestamp = NTP.getUnix();
+  save_status_data(status_data);
+  String message = "Наразі світло " + String(success ? "є" : "немає") + ", (поточна тривалість невідома)";
+  post_status_to_channel(message);
+}
+
+void perform_regular_check(StatusData& status_data)
+{
+  debug_print("Performing regular status check...");
+  CheckResult result = check_connection_status(status_data);
+  if (result.changed) {
+    debug_print("Status changed, posting update to channel...");
+    post_status_to_channel(result.message);
+  } else {
+    debug_print("No status change.");
+  }
+}
+
+void handle_status_check(StatusData& status_data)
 {
   if (status_data.status == UNDEFINED) {
-    bool success = Ping.ping(CHECK_IP);
-    status_data.status = success ? CONNECTED : DISCONNECTED;
-    status_data.timestamp = NTP.getUnix();
-    EEPROM.put(0, status_data);
-    EEPROM.commit();
-    String message = "Наразі світло " + String(success ? "є" : "немає") + ", (поточна тривалість невідома)";
-    post_status_to_channel(message);
+    perform_initial_check(status_data);
   } else {
-    CheckResult result = check_connection_status(status_data);
-    if (result.changed) {
-      post_status_to_channel(result.message);
-    }
+    perform_regular_check(status_data);
   }
 }

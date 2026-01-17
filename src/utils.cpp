@@ -8,6 +8,7 @@
 #endif
 #include <FastBot2.h>
 #include "utils.h"
+#include "handler.h"
 
 String format_status_message(bool success)
 {
@@ -39,7 +40,7 @@ CheckResult check_connection_status(StatusData& data)
 {
   time_t now = NTP.getUnix();
   time_t duration = now - data.timestamp;
-  bool success = Ping.ping(CHECK_IP);
+  bool success = is_connected_to_check_ip();
   Status new_status = success ? CONNECTED : DISCONNECTED;
   bool changed = (new_status != data.status);
   String message;
@@ -52,20 +53,13 @@ CheckResult check_connection_status(StatusData& data)
     data.status = new_status;
     data.timestamp = now;
     data.counter++;
-    EEPROM.put(0, data);
-    EEPROM.commit();
+    save_status_data(data);
   }
   return CheckResult{changed, message};
 }
 
 void post_status_to_channel(String status) {
-  fb::Message message;
-  message.chatID = CHANNEL_ID;
-  message.text = status;
-  #ifdef DEBUG
-  Serial.println(message.text);
-  #endif
-  bot.sendMessage(message);
+  send_message(status, CHANNEL_ID);
 }
 
 void clear_eeprom_data()
@@ -77,6 +71,69 @@ void clear_eeprom_data()
 
 String format_ping_message()
 {
-  bool ping_ok = Ping.ping(CHECK_IP);
+  bool ping_ok = is_connected_to_check_ip();
   return String(CHECK_IP) + " is " + (ping_ok ? "connected." : "not connected.");
+}
+
+bool is_connected_to_check_ip()
+{
+  return Ping.ping(CHECK_IP);
+}
+
+void save_status_data(const StatusData& data)
+{
+  EEPROM.put(0, data);
+  EEPROM.commit();
+}
+
+void debug_print(const String& msg)
+{
+  #ifdef DEBUG
+  Serial.println(msg);
+  #endif
+}
+
+void send_message(const String& text, const String& chatID)
+{
+  fb::Message message;
+  message.text = text;
+  message.chatID = chatID;
+  debug_print(text);
+  bot.sendMessage(message);
+}
+
+void connect_to_wifi()
+{
+  #ifdef DEBUG
+  unsigned short i = 1;
+  #endif
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    #ifdef DEBUG
+    debug_print("Connecting to WiFi... (" + String(i++) + ")");
+    #endif
+  }
+}
+
+void init_bot()
+{
+  bot.attachUpdate(handle);
+  bot.setToken(F(BOT_TOKEN));
+  bot.setPollMode(fb::Poll::Long, 20000);
+  bot.skipUpdates(-10);
+}
+
+void send_startup_message()
+{
+  send_message("Мікроконтролер підключено", CHANNEL_ID);
+  #ifdef DEBUG
+  unsigned short i = 1;
+  #endif
+  while (!bot.lastBotMessage())
+  {
+    delay(500);
+    debug_print("Connecting to Telegram... (" + String(i++) + ")");
+  }
 }

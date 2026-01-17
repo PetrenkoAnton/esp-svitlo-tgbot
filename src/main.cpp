@@ -19,53 +19,19 @@ StatusData status_data;
 unsigned long timer_expire;
 
 FastBot2 bot;
-fb::Message message;
 
 void setup()
 {
   #ifdef DEBUG
-  unsigned short i = 1;
   Serial.begin(BAUD_RATE);
   #endif
 
   EEPROM.begin(sizeof(status_data));
-
   EEPROM.get(0, status_data);
 
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    #ifdef DEBUG
-    Serial.println("Connecting to WiFi... (" + String(i++) + ")");
-    #endif
-  }
-
-  bot.attachUpdate(handle);
-  bot.setToken(F(BOT_TOKEN));
-
-  bot.setPollMode(fb::Poll::Long, 20000);
-  bot.skipUpdates(-10);
-
-  message.chatID = CHANNEL_ID;
-  message.text = "Мікроконтролер підключено";
-
-  #ifdef DEBUG
-  Serial.println(message.text);
-  #endif
-  bot.sendMessage(message);
-
-  #ifdef DEBUG
-  i = 1;
-  #endif
-
-  while (!bot.lastBotMessage())
-  {
-    delay(500);
-    #ifdef DEBUG
-    Serial.println("Connecting to Telegram... (" + String(i++) + ")");
-    #endif
-  }
+  connect_to_wifi();
+  init_bot();
+  send_startup_message();
 }
 
 void loop()
@@ -74,7 +40,7 @@ void loop()
   NTP.tick();
 
   if (timer(timer_expire, INTERVAL)) {
-    Serial.println("Checking status...");
-    handle_status_check();
+    debug_print("Checking status...");
+    handle_status_check(status_data);
   }
 }

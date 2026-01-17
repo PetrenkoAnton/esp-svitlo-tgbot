@@ -21,6 +21,8 @@ build_flags =
 	; === WIFI: ==========================================
 	'-D WIFI_SSID = ""'
 	'-D WIFI_PASS = ""'
+	; === LOCAL IP ADDRESS: ==============================
+	'-D LOCAL_IP = "
 	; === TELEGRAM: ======================================
     '-D BOT_TOKEN = ""'
 	'-D LOGGER_GROUP_ID = ""'

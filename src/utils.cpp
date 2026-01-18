@@ -62,14 +62,6 @@ void post_status_to_channel(String status) {
   send_message(status, CHANNEL_ID);
 }
 
-void clear_eeprom_data()
-{
-  for (size_t i = 0; i < EEPROM.length(); i++) {
-    EEPROM.write(i, 0);
-  }
-  EEPROM.commit();
-}
-
 String format_ping_message()
 {
   bool ping_ok = is_connected_to_check_ip();
@@ -83,6 +75,8 @@ bool is_connected_to_check_ip()
 
 void save_status_data(const StatusData& data)
 {
+  Serial.println("Saving to EEPROM: " + String(data.status) + " | " + String(data.timestamp) + " | " + String(data.counter));
+
   EEPROM.put(0, data);
   EEPROM.commit();
 }

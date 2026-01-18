@@ -16,7 +16,6 @@ String format_duration(time_t seconds);
 String format_current_message(bool success, time_t duration);
 String format_change_message(bool success, time_t duration);
 void post_status_to_channel(String status);
-void clear_eeprom_data();
 String format_ping_message();
 
 bool is_connected_to_check_ip();

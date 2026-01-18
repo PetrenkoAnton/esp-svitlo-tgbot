@@ -10,11 +10,9 @@ extern GyverNTP NTP;
 const uint32_t CMD_START = "/start"_h;
 const uint32_t CMD_STATUS = "/status"_h;
 const uint32_t CMD_CLEAR_EEPROM = "/clear_eeprom"_h;
-const uint32_t CMD_REWRITE_EEPROM = "/rewrite_eeprom"_h;
 
-const String START_MESSAGE = "Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data\n/rewrite_eeprom - Rewrite current data to EEPROM";
+const String START_MESSAGE = "Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data";
 const String EEPROM_CLEARED_MESSAGE = "EEPROM cleared";
-const String EEPROM_REWRITTEN_MESSAGE = "EEPROM rewritten";
 
 void handle(fb::Update &u)
 {
@@ -34,13 +32,11 @@ void handle_message(fb::Update &u)
       message_builder(build_status_info(), u);
       break;
     case CMD_CLEAR_EEPROM:
-      clear_eeprom_data();
-      message_builder(EEPROM_CLEARED_MESSAGE, u);
-      break;
-    case CMD_REWRITE_EEPROM:
+      status_data.status = UNDEFINED;
+      status_data.timestamp = 0;
       status_data.counter++;
       save_status_data(status_data);
-      message_builder(EEPROM_REWRITTEN_MESSAGE, u);
+      message_builder(EEPROM_CLEARED_MESSAGE, u);
       break;
     default:
       // Ignore all other commands and messages
@@ -55,11 +51,11 @@ void message_builder(String text, fb::Update &u)
 
 String build_status_info()
 {
-  Serial.println("StatusData: " + String(status_data.status) + " | " + String(status_data.timestamp) + " | " + String(status_data.counter));
-
   String info = format_ping_message() + "\n\n";
   info += "IP: " + WiFi.localIP().toString() + "\n";
   info += "EEPROM rewrites: " + String(status_data.counter);
+  // debug
+  info += "\n\n\nStatusData: " + String(status_data.status) + " | " + String(status_data.timestamp) + " | " + String(status_data.counter);
   return info;
 }
 
@@ -69,7 +65,7 @@ void perform_initial_check(StatusData& status_data)
   status_data.status = success ? CONNECTED : DISCONNECTED;
   status_data.timestamp = NTP.getUnix();
   save_status_data(status_data);
-  String message = "Наразі світло " + String(success ? "є" : "немає") + ", (поточна тривалість невідома)";
+  String message = "Наразі світл" + String(success ? "о є" : "а немає") + " (поточна тривалість невідома і буде вираховуватись з цього моменту).";
   post_status_to_channel(message);
 }
 

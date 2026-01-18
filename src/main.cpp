@@ -39,6 +39,8 @@ void setup()
     #endif
   }
 
+  NTP.begin();
+
   bot.attachUpdate(handle);
   bot.setToken(F(BOT_TOKEN));
   bot.setPollMode(fb::Poll::Long, 20000);
@@ -56,6 +58,8 @@ void setup()
     Serial.println("Connecting to Telegram... (" + String(i++) + ")");
     #endif
   }
+
+  handle_status_check(status_data);
 }
 
 void loop()

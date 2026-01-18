@@ -9,7 +9,6 @@ This project implements an ESP32/ESP8266-based Telegram bot that monitors electr
   - `/start`: Shows available commands
   - `/status`: Displays comprehensive system information (connection status, IP, EEPROM write count)
   - `/clear_eeprom`: Clears EEPROM data (resets to defaults)
-  - `/rewrite_eeprom`: Rewrites current status data to EEPROM
 - **Security**: Only responds to messages from the configured admin user ID; ignores all other messages.
 - **Persistent Storage**: Uses EEPROM to store the last status and timestamp across reboots.
 - **NTP Time Synchronization**: Uses built-in ESP NTP client for accurate timestamps.
@@ -31,8 +30,8 @@ This project implements an ESP32/ESP8266-based Telegram bot that monitors electr
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/PetrenkoAnton/esp-tgbot-elogger.git
-   cd esp-tgbot-elogger
+   git clone https://github.com/PetrenkoAnton/esp-svitlo-tgbot.git
+   cd esp-svitlo-tgbot
    ```
 
 2. Copy `platformio.ini.example` to `platformio.ini`:
@@ -63,7 +62,6 @@ This project implements an ESP32/ESP8266-based Telegram bot that monitors electr
    - `/start`: Display help and available commands
    - `/status`: Get current connection status, IP, and EEPROM write count
    - `/clear_eeprom`: Reset EEPROM to default values
-   - `/rewrite_eeprom`: Save current data to EEPROM
 
 All other messages are ignored for security.
 

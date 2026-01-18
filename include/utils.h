@@ -10,7 +10,6 @@ extern StatusData status_data;
 extern FastBot2 bot;
 extern GyverNTP NTP;
 
-String format_status_message(bool success);
 CheckResult check_connection_status(StatusData& data);
 String format_duration(time_t seconds);
 String format_current_message(bool success, time_t duration);

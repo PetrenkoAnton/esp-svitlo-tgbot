@@ -10,11 +10,6 @@
 #include "utils.h"
 #include "handler.h"
 
-String format_status_message(bool success)
-{
-  return success ? "Світло є" : "Світла немає";
-}
-
 String format_duration(time_t seconds)
 {
   int hours = seconds / 3600;
@@ -32,8 +27,8 @@ String format_current_message(bool success, time_t duration)
 String format_change_message(bool success, time_t duration)
 {
   String duration_str = format_duration(duration);
-  if (success) return "Світло з'явилось.\nСвітла не було " + duration_str;
-  else return "Світло зникло.\nСвітло було " + duration_str;
+  if (success) return "+ Увімкнення світла.\nСвітла не було " + duration_str;
+  else return "- Відключення світла.\nСвітло було " + duration_str;
 }
 
 CheckResult check_connection_status(StatusData& data)

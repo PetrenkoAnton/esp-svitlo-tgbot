@@ -46,7 +46,7 @@ void setup()
   bot.setPollMode(fb::Poll::Long, 20000);
   bot.skipUpdates(-10);
 
-  send_message("Мікроконтролер підключено", CHANNEL_ID);
+  send_message("ESPxx connected", ADMIN_ID);
 
   #ifdef DEBUG
   i = 1;

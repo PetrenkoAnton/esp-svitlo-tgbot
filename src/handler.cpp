@@ -54,8 +54,9 @@ String build_status_info()
   String info = format_ping_message() + "\n\n";
   info += "IP: " + WiFi.localIP().toString() + "\n";
   info += "EEPROM rewrites: " + String(status_data.counter);
-  // debug
-  info += "\n\n\nStatusData: " + String(status_data.status) + " | " + String(status_data.timestamp) + " | " + String(status_data.counter);
+  #if DEBUG
+  Serial.println("StatusData:" + String(status_data.status) + " | " + String(status_data.timestamp) + " | " + String(status_data.counter));
+  #endif
   return info;
 }
 

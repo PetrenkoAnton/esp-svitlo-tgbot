@@ -17,13 +17,6 @@ String format_duration(time_t seconds)
   return String(hours) + " год. " + String(minutes) + " хв.";
 }
 
-String format_current_message(bool success, time_t duration)
-{
-  String duration_str = format_duration(duration);
-  if (success) return "Світло є вже " + duration_str;
-  else return "Світла немає вже " + duration_str;
-}
-
 String format_change_message(bool success, time_t duration)
 {
   String duration_str = format_duration(duration);
@@ -33,18 +26,15 @@ String format_change_message(bool success, time_t duration)
 
 CheckResult check_connection_status(StatusData& data)
 {
-  time_t now = NTP.getUnix();
-  time_t duration = now - data.timestamp;
   bool success = is_connected_to_check_ip();
   Status new_status = success ? CONNECTED : DISCONNECTED;
   bool changed = (new_status != data.status);
   String message;
   if (changed) {
+    time_t now = NTP.getUnix();
+    time_t duration = now - data.timestamp;
     message = format_change_message(success, duration);
-  } else {
-    message = format_current_message(success, duration);
-  }
-  if (changed) {
+
     data.status = new_status;
     data.timestamp = now;
     data.counter++;

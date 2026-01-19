@@ -12,7 +12,7 @@ This project implements an ESP8266-based Telegram bot that monitors electricity 
   - `/clear_eeprom`: Clears EEPROM data (resets to defaults)
 - **Security**: Only responds to messages from the configured admin user ID; ignores all other messages.
 - **Persistent Storage**: Uses EEPROM to store the last status and timestamp across reboots.
-- **NTP Time Synchronization**: Uses built-in ESP NTP client for accurate timestamps.
+- **NTP Time Synchronization**: Uses ESP8266's built-in `configTime()` for accurate timestamps with timezone support.
 
 ## Hardware Requirements
 

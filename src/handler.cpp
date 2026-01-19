@@ -71,7 +71,7 @@ void perform_initial_check(StatusData& status_data, bool is_manual_call)
 
   save_status_data(status_data);
 
-  String message = String((status == CONNECTED) ? "💡" : "🚫") + " Наразі світл" + String((status == CONNECTED) ? "о є" : "а немає") + "\n(поточна тривалість невідома і буде вираховуватись з цього моменту).";
+  String message = String((status == CONNECTED) ? "💡" : "🚫") + " Наразі світл" + String((status == CONNECTED) ? "о є" : "а немає") + ".\nТривалість невідома — розрахунок розпочнеться з цього моменту.";
   
   if (is_manual_call) send_message(message, ADMIN_ID);
   send_message(message, CHANNEL_ID);

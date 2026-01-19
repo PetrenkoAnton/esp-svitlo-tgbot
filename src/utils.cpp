@@ -55,11 +55,11 @@ void update_status_data(StatusData& data, Status status)
   save_status_data(data);
 }
 
-void send_message(const String& text, const String& chatID)
+void send_message(const String& text, const String& chat_id)
 {
   fb::Message message;
   message.text = text;
-  message.chatID = chatID;
+  message.chatID = chat_id;
 
   bot.sendMessage(message);
 }

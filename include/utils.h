@@ -17,7 +17,7 @@ String format_ping_message();
 bool is_connected_to_check_ip();
 void save_status_data(const StatusData& data);
 void update_status_data(StatusData& data, Status new_status);
-void send_message(const String& text, const String& chatID);
+void send_message(const String& text, const String& chat_id);
 
 Status perform_connection_check();
 

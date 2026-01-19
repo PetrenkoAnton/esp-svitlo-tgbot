@@ -49,9 +49,8 @@ void save_status_data(const StatusData& data)
 
 void update_status_data(StatusData& data, Status status)
 {
-  time_t now = NTP.getUnix();
   data.status = status;
-  data.timestamp = now;
+  data.timestamp = NTP.getUnix();;
   data.counter++;
   save_status_data(data);
 }
@@ -67,17 +66,10 @@ void send_message(const String& text, const String& chatID)
 
 String format_ping_message()
 {
-  bool ping_ok = is_connected_to_check_ip();
-  return String(CHECK_IP) + " is " + (ping_ok ? "connected." : "not connected.");
-}
-
-void post_status_to_channel(String status, String chatID)
-{
-  send_message(status, chatID);
+  return String(CHECK_IP) + " is " + (is_connected_to_check_ip() ? "connected." : "not connected.");
 }
 
 Status perform_connection_check()
 {
-  bool success = is_connected_to_check_ip();
-  return success ? CONNECTED : DISCONNECTED;
+  return is_connected_to_check_ip() ? CONNECTED : DISCONNECTED;
 }

@@ -1,11 +1,10 @@
 #include <FastBot2.h>
+#include <time.h>
 #include "handler.h"
 #include "utils.h"
 #include <ESP8266WiFi.h>
-#include <GyverNTP.h>
 
 extern FastBot2 bot;
-extern GyverNTP NTP;
 
 const uint32_t CMD_START = "/start"_h;
 const uint32_t CMD_STATUS = "/status"_h;
@@ -68,11 +67,11 @@ void perform_initial_check(StatusData& status_data, bool is_manual_call)
 {
   Status status = perform_connection_check();
   status_data.status = status;
-  status_data.timestamp = NTP.getUnix();
+  status_data.timestamp = time(NULL);
 
   save_status_data(status_data);
 
-  String message = "Наразі світл" + String((status == CONNECTED) ? "о є" : "а немає") + " (поточна тривалість невідома і буде вираховуватись з цього моменту).";
+  String message = String((status == CONNECTED) ? "+" : "-") + " Наразі світл" + String((status == CONNECTED) ? "о є" : "а немає") + "\n(поточна тривалість невідома і буде вираховуватись з цього моменту).";
   
   if (is_manual_call) send_message(message, ADMIN_ID);
   send_message(message, CHANNEL_ID);
@@ -82,7 +81,10 @@ void perform_regular_check(StatusData& status_data, bool is_manual_call)
 {
   Status status = perform_connection_check();
   bool changed = (status != status_data.status);
-  time_t duration = NTP.getUnix() - status_data.timestamp;
+  time_t current_time;
+  current_time = time(NULL);
+
+  time_t duration = current_time - status_data.timestamp;
   
   if (changed) {
     String message = format_change_message(status, duration);

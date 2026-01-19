@@ -1,13 +1,10 @@
 #pragma once
 
-#include <GyverNTP.h>
-
 enum Status { UNDEFINED, DISCONNECTED, CONNECTED };
 struct StatusData { Status status; time_t timestamp; unsigned short counter; };
 
 extern StatusData status_data;
 extern FastBot2 bot;
-extern GyverNTP NTP;
 
 String format_duration(time_t seconds);
 String format_current_message(Status status, time_t duration);

@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <GyverNTP.h>
+#include <time.h>
 #include <EEPROM.h>
 #ifdef ESP8266
 #include <ESP8266Ping.h>
@@ -12,6 +12,7 @@
 
 String format_duration(time_t seconds)
 {
+  if (seconds < 0) return "(невідомо)";
   int hours = seconds / 3600;
   int minutes = (seconds % 3600) / 60;
   String result = String(hours) + " год. " + String(minutes) + " хв.";
@@ -50,7 +51,8 @@ void save_status_data(const StatusData& data)
 void update_status_data(StatusData& data, Status status)
 {
   data.status = status;
-  data.timestamp = NTP.getUnix();;
+  data.timestamp = time(NULL);
+
   data.counter++;
   save_status_data(data);
 }

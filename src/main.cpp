@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <FastBot2.h>
-#include <GyverNTP.h>
+#include <time.h>
 
 #include <EEPROM.h>
 #ifdef ESP8266
@@ -18,7 +18,6 @@
 unsigned long timer_expire;
 
 FastBot2 bot;
-
 StatusData status_data;
 
 void setup()
@@ -40,7 +39,7 @@ void setup()
     #endif
   }
 
-  NTP.begin();
+  configTime(GMT_OFFSET * 3600, 0, "pool.ntp.org", "time.google.com");
 
   bot.attachUpdate(handle);
   bot.setToken(F(BOT_TOKEN));
@@ -66,7 +65,6 @@ void setup()
 void loop()
 {
   bot.tick();
-  NTP.tick();
 
   if (timer(timer_expire, INTERVAL)) {
     handle_status_check(status_data);

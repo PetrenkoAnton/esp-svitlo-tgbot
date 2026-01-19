@@ -1,18 +1,72 @@
 #include <Arduino.h>
+#include <FastBot2.h>
+#include <time.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#include <EEPROM.h>
+#ifdef ESP8266
+#include <ESP8266Ping.h>
+#include <ESP8266WiFi.h>
+#else
+#include <ESP32Ping.h>
+#include <WiFi.h>
+#endif
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+#include "handler.h"
+#include "utils.h"
+#include "timer.h"
+
+unsigned long timer_expire;
+
+FastBot2 bot;
+StatusData status_data;
+
+void setup()
+{
+  #ifdef DEBUG
+  unsigned short i = 1;
+  Serial.begin(BAUD_RATE);
+  #endif
+
+  EEPROM.begin(sizeof(status_data));
+  EEPROM.get(0, status_data);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    #ifdef DEBUG
+    Serial.println("Connecting to WiFi... (" + String(i++) + ")");
+    #endif
+  }
+
+  configTime(GMT_OFFSET * 3600, 0, "pool.ntp.org", "time.google.com");
+
+  bot.attachUpdate(handle);
+  bot.setToken(F(BOT_TOKEN));
+  bot.setPollMode(fb::Poll::Long, 20000);
+  bot.skipUpdates(-10);
+
+  send_message("ESPxx connected", ADMIN_ID);
+
+  #ifdef DEBUG
+  i = 1;
+  #endif
+  while (!bot.lastBotMessage())
+  {
+    delay(500);
+    #ifdef DEBUG
+    Serial.println("Connecting to Telegram... (" + String(i++) + ")");
+    #endif
+  }
+
+  handle_status_check(status_data);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
+void loop()
+{
+  bot.tick();
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  if (timer(timer_expire, INTERVAL)) {
+    handle_status_check(status_data);
+  }
 }

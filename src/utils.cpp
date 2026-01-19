@@ -26,15 +26,15 @@ String format_duration(time_t seconds)
 String format_current_message(Status status, time_t duration)
 {
   String duration_str = format_duration(duration);
-  if (status == CONNECTED) return "Світло є вже " + duration_str;
-  else return "Світла немає вже " + duration_str;
+  if (status == CONNECTED) return "💡 Світло є вже " + duration_str;
+  else return "🚫 Світла немає вже " + duration_str;
 }
 
 String format_change_message(Status status, time_t duration)
 {
   String duration_str = format_duration(duration);
-  if (status == CONNECTED) return "+ Увімкнення світла.\nСвітла не було " + duration_str;
-  else return "- Відключення світла.\nСвітло було " + duration_str;
+  if (status == CONNECTED) return "💡 Увімкнення світла.\nСвітла не було " + duration_str;
+  else return "🚫 Відключення світла.\nСвітло було " + duration_str;
 }
 
 bool is_connected_to_check_ip()

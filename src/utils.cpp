@@ -14,7 +14,19 @@ String format_duration(time_t seconds)
 {
   int hours = seconds / 3600;
   int minutes = (seconds % 3600) / 60;
-  return String(hours) + " год. " + String(minutes) + " хв.";
+  String result = String(hours) + " год. " + String(minutes) + " хв.";
+  #ifdef DEBUG
+  int secs = seconds % 60;
+  result += " " + String(secs) + " сек.";
+  #endif
+  return result;
+}
+
+String format_current_message(bool success, time_t duration)
+{
+  String duration_str = format_duration(duration);
+  if (success) return "Світло є вже " + duration_str;
+  else return "Світла немає вже " + duration_str;
 }
 
 String format_change_message(bool success, time_t duration)
@@ -34,23 +46,8 @@ CheckResult check_connection_status(StatusData& data)
     time_t now = NTP.getUnix();
     time_t duration = now - data.timestamp;
     message = format_change_message(success, duration);
-
-    data.status = new_status;
-    data.timestamp = now;
-    data.counter++;
-    save_status_data(data);
   }
-  return CheckResult{changed, message};
-}
-
-void post_status_to_channel(String status) {
-  send_message(status, CHANNEL_ID);
-}
-
-String format_ping_message()
-{
-  bool ping_ok = is_connected_to_check_ip();
-  return String(CHECK_IP) + " is " + (ping_ok ? "connected." : "not connected.");
+  return CheckResult{changed, message, new_status};
 }
 
 bool is_connected_to_check_ip()
@@ -66,6 +63,15 @@ void save_status_data(const StatusData& data)
   EEPROM.commit();
 }
 
+void update_status_data(StatusData& data, Status new_status)
+{
+  time_t now = NTP.getUnix();
+  data.status = new_status;
+  data.timestamp = now;
+  data.counter++;
+  save_status_data(data);
+}
+
 void send_message(const String& text, const String& chatID)
 {
   fb::Message message;
@@ -73,4 +79,15 @@ void send_message(const String& text, const String& chatID)
   message.chatID = chatID;
 
   bot.sendMessage(message);
+}
+
+String format_ping_message()
+{
+  bool ping_ok = is_connected_to_check_ip();
+  return String(CHECK_IP) + " is " + (ping_ok ? "connected." : "not connected.");
+}
+
+void post_status_to_channel(String status, String chatID)
+{
+  send_message(status, chatID);
 }

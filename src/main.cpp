@@ -15,10 +15,11 @@
 #include "utils.h"
 #include "timer.h"
 
-StatusData status_data;
 unsigned long timer_expire;
 
 FastBot2 bot;
+
+StatusData status_data;
 
 void setup()
 {
@@ -59,7 +60,7 @@ void setup()
     #endif
   }
 
-  handle_status_check(status_data);
+  // handle_status_check(status_data);
 }
 
 void loop()

@@ -9,9 +9,10 @@ extern GyverNTP NTP;
 
 const uint32_t CMD_START = "/start"_h;
 const uint32_t CMD_STATUS = "/status"_h;
+const uint32_t CMD_CURRENT = "/current"_h;
 const uint32_t CMD_CLEAR_EEPROM = "/clear_eeprom"_h;
 
-const String START_MESSAGE = "Available commands:\n\n/start - Show this message\n/status - Get system status\n/clear_eeprom - Clear EEPROM data";
+const String START_MESSAGE = "Available commands:\n\n/start - Show this message\n/status - Get system status\n/current - Get current electricity status\n/clear_eeprom - Clear EEPROM data";
 const String EEPROM_CLEARED_MESSAGE = "EEPROM cleared";
 
 void handle(fb::Update &u)
@@ -30,6 +31,9 @@ void handle_message(fb::Update &u)
       break;
     case CMD_STATUS:
       message_builder(build_status_info(), u);
+      break;
+    case CMD_CURRENT:
+      handle_status_check(status_data, false, ADMIN_ID);
       break;
     case CMD_CLEAR_EEPROM:
       status_data.status = UNDEFINED;
@@ -60,29 +64,42 @@ String build_status_info()
   return info;
 }
 
-void perform_initial_check(StatusData& status_data)
+void perform_initial_check(StatusData& status_data, bool save_to_eeprom, String chatID)
 {
   bool success = is_connected_to_check_ip();
   status_data.status = success ? CONNECTED : DISCONNECTED;
   status_data.timestamp = NTP.getUnix();
-  save_status_data(status_data);
+  if (save_to_eeprom) save_status_data(status_data);
   String message = "Наразі світл" + String(success ? "о є" : "а немає") + " (поточна тривалість невідома і буде вираховуватись з цього моменту).";
-  post_status_to_channel(message);
+  post_status_to_channel(message, chatID);
 }
 
-void perform_regular_check(StatusData& status_data)
+void perform_regular_check(StatusData& status_data, bool save_to_eeprom, String chat_id)
 {
-  CheckResult result = check_connection_status(status_data);
-  if (result.changed) {
-    post_status_to_channel(result.message);
-  }
-}
+  bool success = is_connected_to_check_ip();
+  Status new_status = success ? CONNECTED : DISCONNECTED;
+  bool changed = (new_status != status_data.status);
+  String message;
+  time_t duration = NTP.getUnix() - status_data.timestamp;
+  
+  if (changed) {
+    message = format_change_message(success, duration);
 
-void handle_status_check(StatusData& status_data)
-{
-  if (status_data.status == UNDEFINED) {
-    perform_initial_check(status_data);
+    if (save_to_eeprom) update_status_data(status_data, new_status);
   } else {
-    perform_regular_check(status_data);
+    message = format_current_message(success, duration);
   }
+
+  post_status_to_channel(message, chat_id);
+}
+
+void handle_status_check(StatusData& status_data, bool save_to_eeprom, String chatID)
+{
+    Serial.println("Handling status check...");
+
+    if (status_data.status == UNDEFINED) {
+      perform_initial_check(status_data, save_to_eeprom, chatID);
+    } else {
+      perform_regular_check(status_data, save_to_eeprom, chatID);
+    }
 }

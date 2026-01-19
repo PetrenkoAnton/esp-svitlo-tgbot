@@ -81,7 +81,7 @@ All other messages are ignored for security.
 
 ## License
 
-This project is open-source. Please check the repository for license details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 

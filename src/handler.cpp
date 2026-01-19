@@ -33,7 +33,7 @@ void handle_message(fb::Update &u)
       message_builder(build_status_info(), u);
       break;
     case CMD_CURRENT:
-      handle_status_check(status_data, false, ADMIN_ID);
+      handle_status_check(status_data, true);
       break;
     case CMD_CLEAR_EEPROM:
       status_data.status = UNDEFINED;
@@ -64,42 +64,44 @@ String build_status_info()
   return info;
 }
 
-void perform_initial_check(StatusData& status_data, bool save_to_eeprom, String chatID)
+void perform_initial_check(StatusData& status_data, bool is_manual_call)
 {
-  bool success = is_connected_to_check_ip();
-  status_data.status = success ? CONNECTED : DISCONNECTED;
+  Status status = perform_connection_check();
+  status_data.status = status;
   status_data.timestamp = NTP.getUnix();
-  if (save_to_eeprom) save_status_data(status_data);
-  String message = "Наразі світл" + String(success ? "о є" : "а немає") + " (поточна тривалість невідома і буде вираховуватись з цього моменту).";
-  post_status_to_channel(message, chatID);
+
+  save_status_data(status_data);
+
+  String message = "Наразі світл" + String((status == CONNECTED) ? "о є" : "а немає") + " (поточна тривалість невідома і буде вираховуватись з цього моменту).";
+  
+  if (is_manual_call) send_message(message, ADMIN_ID);
+  send_message(message, CHANNEL_ID);
 }
 
-void perform_regular_check(StatusData& status_data, bool save_to_eeprom, String chat_id)
+void perform_regular_check(StatusData& status_data, bool is_manual_call)
 {
-  bool success = is_connected_to_check_ip();
-  Status new_status = success ? CONNECTED : DISCONNECTED;
-  bool changed = (new_status != status_data.status);
-  String message;
+  Status status = perform_connection_check();
+  bool changed = (status != status_data.status);
   time_t duration = NTP.getUnix() - status_data.timestamp;
   
   if (changed) {
-    message = format_change_message(success, duration);
+    String message = format_change_message(status, duration);
 
-    if (save_to_eeprom) update_status_data(status_data, new_status);
+    update_status_data(status_data, status);
+
+    if (is_manual_call) send_message(message, ADMIN_ID);
+    
+    send_message(message, CHANNEL_ID);
   } else {
-    message = format_current_message(success, duration);
+    if (is_manual_call) send_message(format_current_message(status, duration), ADMIN_ID);
   }
-
-  post_status_to_channel(message, chat_id);
 }
 
-void handle_status_check(StatusData& status_data, bool save_to_eeprom, String chatID)
+void handle_status_check(StatusData& status_data, bool is_manual_call)
 {
-    Serial.println("Handling status check...");
-
     if (status_data.status == UNDEFINED) {
-      perform_initial_check(status_data, save_to_eeprom, chatID);
+      perform_initial_check(status_data, is_manual_call);
     } else {
-      perform_regular_check(status_data, save_to_eeprom, chatID);
+      perform_regular_check(status_data, is_manual_call);
     }
 }

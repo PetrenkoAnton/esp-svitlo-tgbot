@@ -22,32 +22,18 @@ String format_duration(time_t seconds)
   return result;
 }
 
-String format_current_message(bool success, time_t duration)
+String format_current_message(Status status, time_t duration)
 {
   String duration_str = format_duration(duration);
-  if (success) return "Світло є вже " + duration_str;
+  if (status == CONNECTED) return "Світло є вже " + duration_str;
   else return "Світла немає вже " + duration_str;
 }
 
-String format_change_message(bool success, time_t duration)
+String format_change_message(Status status, time_t duration)
 {
   String duration_str = format_duration(duration);
-  if (success) return "+ Увімкнення світла.\nСвітла не було " + duration_str;
+  if (status == CONNECTED) return "+ Увімкнення світла.\nСвітла не було " + duration_str;
   else return "- Відключення світла.\nСвітло було " + duration_str;
-}
-
-CheckResult check_connection_status(StatusData& data)
-{
-  bool success = is_connected_to_check_ip();
-  Status new_status = success ? CONNECTED : DISCONNECTED;
-  bool changed = (new_status != data.status);
-  String message;
-  if (changed) {
-    time_t now = NTP.getUnix();
-    time_t duration = now - data.timestamp;
-    message = format_change_message(success, duration);
-  }
-  return CheckResult{changed, message, new_status};
 }
 
 bool is_connected_to_check_ip()
@@ -57,16 +43,14 @@ bool is_connected_to_check_ip()
 
 void save_status_data(const StatusData& data)
 {
-  Serial.println("Saving to EEPROM: " + String(data.status) + " | " + String(data.timestamp) + " | " + String(data.counter));
-
   EEPROM.put(0, data);
   EEPROM.commit();
 }
 
-void update_status_data(StatusData& data, Status new_status)
+void update_status_data(StatusData& data, Status status)
 {
   time_t now = NTP.getUnix();
-  data.status = new_status;
+  data.status = status;
   data.timestamp = now;
   data.counter++;
   save_status_data(data);
@@ -90,4 +74,10 @@ String format_ping_message()
 void post_status_to_channel(String status, String chatID)
 {
   send_message(status, chatID);
+}
+
+Status perform_connection_check()
+{
+  bool success = is_connected_to_check_ip();
+  return success ? CONNECTED : DISCONNECTED;
 }

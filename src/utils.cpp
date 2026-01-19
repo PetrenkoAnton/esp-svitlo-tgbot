@@ -57,12 +57,8 @@ void update_status_data(StatusData& data, Status status)
 
 void send_message(const String& text, const String& chatID)
 {
-  String full_text = text;
-  if (chatID == ADMIN_ID) {
-    full_text += "\n\n{/start} {/status} {/current} {/clear_eeprom}";
-  }
   fb::Message message;
-  message.text = full_text;
+  message.text = text;
   message.chatID = chatID;
 
   bot.sendMessage(message);

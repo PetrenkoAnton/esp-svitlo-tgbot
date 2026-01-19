@@ -16,14 +16,19 @@ framework = arduino
 monitor_speed = 9600
 build_flags = 
 	; === GENERAL: =======================================
+	; '-D DEBUG'
+	; '-D CLEAR_EEPROM'
 	'-D BAUD_RATE = 9600'
-	'-D GMT_OFFSET = 3'
+	'-D INTERVAL = 60' ; in seconds
 	; === WIFI: ==========================================
 	'-D WIFI_SSID = ""'
 	'-D WIFI_PASS = ""'
+	; === LOCAL IP ADDRESS: ==============================
+	'-D CHECK_IP = "
 	; === TELEGRAM: ======================================
     '-D BOT_TOKEN = ""'
-	'-D LOGGER_GROUP_ID = ""'
+	'-D CHANNEL_ID = ""'
+	'-D ADMIN_ID = ""'
 
 [env:nodemcuv2]
 platform = espressif8266
@@ -31,6 +36,7 @@ board = nodemcuv2
 lib_deps = 
 	gyverlibs/FastBot2@^1.0.12
 	gyverlibs/GyverNTP@^2.2.2
+	ESP8266Ping
 
 [env:d1_mini_pro]
 platform = espressif8266
@@ -38,6 +44,7 @@ board = d1_mini_pro
 lib_deps = 
 	gyverlibs/FastBot2@^1.0.12
 	gyverlibs/GyverNTP@^2.2.2
+	ESP8266Ping
 
 [env:esp32dev]
 platform = espressif32
@@ -45,6 +52,7 @@ board = esp32dev
 lib_deps = 
 	gyverlibs/FastBot2@^1.0.12
 	gyverlibs/GyverNTP@^2.2.2
+	ESP32Ping
 
 [env:esp32-s3-devkitc-1]
 platform = espressif32
@@ -53,3 +61,4 @@ board_build.mcu = esp32s3
 lib_deps = 
 	gyverlibs/FastBot2@^1.0.12
 	gyverlibs/GyverNTP@^2.2.2
+	ESP32Ping

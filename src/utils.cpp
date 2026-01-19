@@ -35,6 +35,9 @@ String format_change_message(Status status, time_t duration)
   if (status == CONNECTED) return "+ Увімкнення світла.\nСвітла не було " + duration_str;
   else return "- Відключення світла.\nСвітло було " + duration_str;
 }
+  bool success = is_connected_to_check_ip();
+  Status new_status = success ? CONNECTED : DISCONNECTED;
+}
 
 bool is_connected_to_check_ip()
 {
@@ -43,6 +46,8 @@ bool is_connected_to_check_ip()
 
 void save_status_data(const StatusData& data)
 {
+  Serial.println("Saving to EEPROM: " + String(data.status) + " | " + String(data.timestamp) + " | " + String(data.counter));
+
   EEPROM.put(0, data);
   EEPROM.commit();
 }
@@ -50,18 +55,29 @@ void save_status_data(const StatusData& data)
 void update_status_data(StatusData& data, Status status)
 {
   data.status = status;
-  data.timestamp = NTP.getUnix();;
+  data.timestamp = NTP.getUnix();
   data.counter++;
   save_status_data(data);
 }
 
 void send_message(const String& text, const String& chatID)
 {
+  String full_text = text;
+  if (chatID == ADMIN_ID) {
+    full_text += "\n\n{/start} {/status} {/current} {/clear_eeprom}";
+  }
   fb::Message message;
-  message.text = text;
+  message.text = full_text;
   message.chatID = chatID;
 
   bot.sendMessage(message);
+}
+
+Status perform_connection_check()
+{
+  bool success = is_connected_to_check_ip();
+  return success ? CONNECTED : DISCONNECTED;
+}
 }
 
 String format_ping_message()
@@ -72,4 +88,6 @@ String format_ping_message()
 Status perform_connection_check()
 {
   return is_connected_to_check_ip() ? CONNECTED : DISCONNECTED;
+=======
+>>>>>>> origin/dev
 }

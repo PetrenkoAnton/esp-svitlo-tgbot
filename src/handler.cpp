@@ -64,36 +64,37 @@ String build_status_info()
   return info;
 }
 
+}
+
 void perform_initial_check(StatusData& status_data, bool is_manual_call)
 {
-  Status status = perform_connection_check();
-  status_data.status = status;
+  bool save_to_eeprom = !is_manual_call;
+  String chatID = is_manual_call ? ADMIN_ID : CHANNEL_ID;
+  Status new_status = perform_connection_check();
+  status_data.status = new_status;
   status_data.timestamp = NTP.getUnix();
-
-  save_status_data(status_data);
-
-  String message = "Наразі світл" + String((status == CONNECTED) ? "о є" : "а немає") + " (поточна тривалість невідома і буде вираховуватись з цього моменту).";
-  
-  if (is_manual_call) send_message(message, ADMIN_ID);
-  send_message(message, CHANNEL_ID);
+  if (save_to_eeprom) save_status_data(status_data);
+  String message = "Наразі світл" + String((new_status == CONNECTED) ? "о є" : "а немає") + " (поточна тривалість невідома і буде вираховуватись з цього моменту).";
+  post_status_to_channel(message, chatID);
 }
 
 void perform_regular_check(StatusData& status_data, bool is_manual_call)
 {
-  Status status = perform_connection_check();
-  bool changed = (status != status_data.status);
+  bool save_to_eeprom = !is_manual_call;
+  String chat_id = is_manual_call ? ADMIN_ID : CHANNEL_ID;
+  Status new_status = perform_connection_check();
+  bool changed = (new_status != status_data.status);
   time_t duration = NTP.getUnix() - status_data.timestamp;
   
   if (changed) {
-    String message = format_change_message(status, duration);
+    String message = format_change_message((new_status == CONNECTED), duration);
 
-    update_status_data(status_data, status);
-
-    if (is_manual_call) send_message(message, ADMIN_ID);
-    
-    send_message(message, CHANNEL_ID);
+    if (save_to_eeprom) update_status_data(status_data, new_status);
+    send_message(message, ADMIN_ID);
+    post_status_to_channel(message, chat_id);
   } else {
-    if (is_manual_call) send_message(format_current_message(status, duration), ADMIN_ID);
+    String message = format_current_message((new_status == CONNECTED), duration);
+    post_status_to_channel(message, chat_id);
   }
 }
 
@@ -104,4 +105,6 @@ void handle_status_check(StatusData& status_data, bool is_manual_call)
     } else {
       perform_regular_check(status_data, is_manual_call);
     }
+}
+  bool success = is_connected_to_check_ip();
 }

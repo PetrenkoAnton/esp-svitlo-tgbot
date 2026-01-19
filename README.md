@@ -1,4 +1,4 @@
-# ESP32/ESP8266 Telegram Bot Electricity Logger
+# ESP8266 Telegram Bot Electricity Logger
 
 This project implements an ESP8266-based Telegram bot that monitors electricity availability by pinging a local IP address and logs status changes. It provides periodic updates to a Telegram channel and responds to admin commands.
 

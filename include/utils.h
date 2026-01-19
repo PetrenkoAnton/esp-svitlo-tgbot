@@ -20,5 +20,3 @@ void update_status_data(StatusData& data, Status new_status);
 void send_message(const String& text, const String& chatID);
 
 Status perform_connection_check();
-
-String format_ping_message();

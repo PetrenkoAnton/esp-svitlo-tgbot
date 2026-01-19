@@ -1,13 +1,14 @@
-# ESP32/ESP8266 Telegram Bot Electricity Logger
+# ESP8266 Telegram Bot Electricity Logger
 
-This project implements an ESP32/ESP8266-based Telegram bot that monitors electricity availability by pinging a local IP address and logs status changes. It provides periodic updates to a Telegram channel and responds to admin commands.
+This project implements an ESP8266-based Telegram bot that monitors electricity availability by pinging a local IP address and logs status changes. It provides periodic updates to a Telegram channel and responds to admin commands.
 
 ## Features
 
-- **Periodic Status Monitoring**: Automatically checks electricity status every configured interval and posts updates to a Telegram channel only when the status changes.
+- **Periodic Status Monitoring**: Automatically checks electricity status every configured interval and posts updates to the admin and Telegram channel only when the status changes.
 - **Admin Commands**:
   - `/start`: Shows available commands
   - `/status`: Displays comprehensive system information (connection status, IP, EEPROM write count)
+  - `/current`: Gets the current electricity status (manual check)
   - `/clear_eeprom`: Clears EEPROM data (resets to defaults)
 - **Security**: Only responds to messages from the configured admin user ID; ignores all other messages.
 - **Persistent Storage**: Uses EEPROM to store the last status and timestamp across reboots.
@@ -57,10 +58,11 @@ This project implements an ESP32/ESP8266-based Telegram bot that monitors electr
 1. Power on the ESP32/ESP8266 device.
 2. The bot will connect to WiFi, synchronize time via NTP, and start monitoring.
 3. On startup, it posts an initial status message to the channel.
-4. Every `INTERVAL` seconds, it checks the status and posts to the channel only if the electricity status has changed.
+4. Every `INTERVAL` seconds, it checks the status and posts to the admin and channel only if the electricity status has changed.
 5. Send commands to the bot (admin only):
    - `/start`: Display help and available commands
    - `/status`: Get current connection status, IP, and EEPROM write count
+   - `/current`: Get current electricity status (manual check, posts to admin)
    - `/clear_eeprom`: Reset EEPROM to default values
 
 All other messages are ignored for security.

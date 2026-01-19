@@ -60,7 +60,7 @@ void setup()
     #endif
   }
 
-  // handle_status_check(status_data);
+  handle_status_check(status_data);
 }
 
 void loop()

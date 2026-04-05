@@ -1,10 +1,12 @@
-# ESP32/ESP8266 Telegram Bot Electricity Logger
+# ESP8266 Telegram Bot Electricity Logger
 
 This project implements an ESP8266-based Telegram bot that monitors electricity availability by pinging a local IP address and logs status changes. It provides periodic updates to a Telegram channel and responds to admin commands.
 
 ## Features
 
 - **Periodic Status Monitoring**: Automatically checks electricity status every configured interval and posts updates to the admin and Telegram channel only when the status changes.
+- **Status Change Confirmation**: Implements a double-check mechanism where status changes are only reported after persisting for a full interval period to prevent false positives from network issues.
+- **Duration Formatting**: Displays outage durations with days for long periods (>24h), hours and minutes otherwise.
 - **Admin Commands**:
   - `/start`: Shows available commands
   - `/status`: Displays comprehensive system information (connection status, IP, EEPROM write count)
@@ -16,7 +18,7 @@ This project implements an ESP8266-based Telegram bot that monitors electricity 
 
 ## Hardware Requirements
 
-- ESP32 or ESP8266 board (configured for ESP8266 in this example)
+- ESP8266 board (e.g., NodeMCU, Wemos D1 Mini)
 - Internet connection for Telegram API and NTP
 
 ## Software Setup
@@ -55,11 +57,10 @@ This project implements an ESP8266-based Telegram bot that monitors electricity 
 
 ### Usage
 
-1. Power on the ESP32/ESP8266 device.
+1. Power on the ESP8266 device.
 2. The bot will connect to WiFi, synchronize time via NTP, and start monitoring.
-3. On startup, it posts an initial status message to the channel.
-4. Every `INTERVAL` seconds, it checks the status and posts to the admin and channel only if the electricity status has changed.
-5. Send commands to the bot (admin only):
+3. Every `INTERVAL` seconds, it checks the status and posts to the admin and channel only if the electricity status has changed and persists for another interval.
+4. Send commands to the bot (admin only):
    - `/start`: Display help and available commands
    - `/status`: Get current connection status, IP, and EEPROM write count
    - `/current`: Get current electricity status (manual check, posts to admin)
@@ -70,15 +71,16 @@ All other messages are ignored for security.
 ## Project Structure
 
 - `src/main.cpp`: Main application logic, setup, and loop
-- `src/handler.cpp`: Telegram message handling
-- `src/utils.cpp`: Utility functions for status checking and messaging
+- `src/handler.cpp`: Telegram message handling and status checking logic
+- `src/utils.cpp`: Utility functions for status checking, messaging, and duration formatting
 - `include/utils.h`: Header file with declarations
+- `include/handler.h`: Header file for handler functions
 - `platformio.ini`: PlatformIO configuration
 
 ## Dependencies
 
 - [FastBot2](https://github.com/GyverLibs/FastBot2): Telegram bot library
-- ESP8266Ping or ESP32Ping: For network pinging
+- ESP8266Ping: For network pinging
 - Built-in Arduino EEPROM and time libraries
 
 ## License

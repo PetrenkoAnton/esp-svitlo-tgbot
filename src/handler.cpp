@@ -8,6 +8,7 @@ extern FastBot2 bot;
 
 Status pending_status = UNDEFINED;
 time_t pending_timestamp = 0;
+Status original_status = UNDEFINED;
 
 const uint32_t CMD_START = "/start"_h;
 const uint32_t CMD_STATUS = "/status"_h;
@@ -90,9 +91,14 @@ void perform_regular_check(StatusData& status_data, bool is_manual_call)
   
   if (changed) {
     if (pending_status == UNDEFINED) {
+      original_status = status_data.status;
       pending_status = status;
       pending_timestamp = current_time;
+      // send pending message
+      String msg = "⚠️ Possible status change detected: from " + String(original_status == CONNECTED ? "connected" : "disconnected") + " to " + String(status == CONNECTED ? "connected" : "disconnected") + ". Waiting for confirmation.";
+      send_message(msg, ADMIN_ID);
     } else if (pending_status == status && current_time - pending_timestamp >= INTERVAL) {
+      // confirmed
       String message = format_change_message(status, duration);
 
       update_status_data(status_data, status);
@@ -100,17 +106,33 @@ void perform_regular_check(StatusData& status_data, bool is_manual_call)
       if (is_manual_call) send_message(message, ADMIN_ID);
       
       send_message(message, CHANNEL_ID);
+      // send confirmed to admin
+      String confirm_msg = "✅ Status change confirmed: " + String(original_status == CONNECTED ? "connected" : "disconnected") + " → " + String(status == CONNECTED ? "connected" : "disconnected");
+      send_message(confirm_msg, ADMIN_ID);
       pending_status = UNDEFINED;
       pending_timestamp = 0;
+      original_status = UNDEFINED;
+    } else if (status == original_status) {
+      // declined
+      String decline_msg = "❌ Status change declined: returned to " + String(status == CONNECTED ? "connected" : "disconnected");
+      send_message(decline_msg, ADMIN_ID);
+      pending_status = UNDEFINED;
+      pending_timestamp = 0;
+      original_status = UNDEFINED;
     } else if (pending_status != status) {
-      // status changed again, reset and set new pending
+      // new change
+      original_status = status_data.status;
       pending_status = status;
       pending_timestamp = current_time;
+      // send new pending
+      String msg = "⚠️ Possible status change detected: from " + String(original_status == CONNECTED ? "connected" : "disconnected") + " to " + String(status == CONNECTED ? "connected" : "disconnected") + ". Waiting for confirmation.";
+      send_message(msg, ADMIN_ID);
     }
   } else {
-    // no change, reset pending
+    // no change, reset
     pending_status = UNDEFINED;
     pending_timestamp = 0;
+    original_status = UNDEFINED;
     if (is_manual_call) send_message(format_current_message(status, duration), ADMIN_ID);
   }
 }

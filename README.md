@@ -1,6 +1,6 @@
-# ESP8266 Telegram Bot Electricity Logger
+# ESP32/ESP8266 Telegram Bot Electricity Logger
 
-This project implements an ESP8266-based Telegram bot that monitors electricity availability by pinging a local IP address and logs status changes. It provides periodic updates to a Telegram channel and responds to admin commands.
+This project implements an ESP32 or ESP8266-based Telegram bot that monitors electricity availability by pinging a local IP address and logs status changes. It provides periodic updates to a Telegram channel and responds to admin commands.
 
 ## Features
 
@@ -18,7 +18,7 @@ This project implements an ESP8266-based Telegram bot that monitors electricity 
 
 ## Hardware Requirements
 
-- ESP8266 board (e.g., NodeMCU, Wemos D1 Mini)
+- ESP32 or ESP8266 board (e.g., ESP32 DevKit, NodeMCU, Wemos D1 Mini)
 - Internet connection for Telegram API and NTP
 
 ## Software Setup
@@ -57,7 +57,7 @@ This project implements an ESP8266-based Telegram bot that monitors electricity 
 
 ### Usage
 
-1. Power on the ESP8266 device.
+1. Power on the ESP32/ESP8266 device.
 2. The bot will connect to WiFi, synchronize time via NTP, and start monitoring.
 3. Every `INTERVAL` seconds, it checks the status and posts to the admin and channel only if the electricity status has changed and persists for another interval.
 4. Send commands to the bot (admin only):
@@ -80,7 +80,7 @@ All other messages are ignored for security.
 ## Dependencies
 
 - [FastBot2](https://github.com/GyverLibs/FastBot2): Telegram bot library
-- ESP8266Ping: For network pinging
+- ESP8266Ping or ESP32Ping: For network pinging
 - Built-in Arduino EEPROM and time libraries
 
 ## License

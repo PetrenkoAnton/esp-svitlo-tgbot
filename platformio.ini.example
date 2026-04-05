@@ -19,7 +19,7 @@ build_flags =
 	; '-D DEBUG'
 	; '-D CLEAR_EEPROM'
 	'-D BAUD_RATE = 9600'
-	'-D INTERVAL = 60' ; in seconds
+	'-D INTERVAL = 30' ; in seconds
 	'-D GMT_OFFSET = 3'  ; Kyiv time
 	; === WIFI: ==========================================
 	'-D WIFI_SSID = ""'

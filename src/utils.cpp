@@ -13,9 +13,15 @@
 String format_duration(time_t seconds)
 {
   if (seconds < 0) return "(невідомо)";
-  int hours = seconds / 3600;
+  int days = seconds / 86400;
+  int hours = (seconds % 86400) / 3600;
   int minutes = (seconds % 3600) / 60;
-  String result = String(hours) + " год. " + String(minutes) + " хв.";
+  String result;
+  if (days > 0) {
+    result = String(days) + " дн. " + String(hours) + " год. " + String(minutes) + " хв.";
+  } else {
+    result = String(hours) + " год. " + String(minutes) + " хв.";
+  }
   #ifdef DEBUG
   int secs = seconds % 60;
   result += " " + String(secs) + " сек.";

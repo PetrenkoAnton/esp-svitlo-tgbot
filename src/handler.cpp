@@ -6,6 +6,9 @@
 
 extern FastBot2 bot;
 
+Status pending_status = UNDEFINED;
+time_t pending_timestamp = 0;
+
 const uint32_t CMD_START = "/start"_h;
 const uint32_t CMD_STATUS = "/status"_h;
 const uint32_t CMD_CURRENT = "/current"_h;
@@ -71,10 +74,9 @@ void perform_initial_check(StatusData& status_data, bool is_manual_call)
 
   save_status_data(status_data);
 
-  String message = String((status == CONNECTED) ? "💡" : "🚫") + " Наразі світл" + String((status == CONNECTED) ? "о є" : "а немає") + ".\nТривалість невідома — розрахунок розпочнеться з цього моменту.";
+  String message = String((status == CONNECTED) ? "💡" : "🚫") + " Наразі світл" + String((status == CONNECTED) ? "о є" : "а немає") + ".";
   
   if (is_manual_call) send_message(message, ADMIN_ID);
-  send_message(message, CHANNEL_ID);
 }
 
 void perform_regular_check(StatusData& status_data, bool is_manual_call)
@@ -87,14 +89,28 @@ void perform_regular_check(StatusData& status_data, bool is_manual_call)
   time_t duration = current_time - status_data.timestamp;
   
   if (changed) {
-    String message = format_change_message(status, duration);
+    if (pending_status == UNDEFINED) {
+      pending_status = status;
+      pending_timestamp = current_time;
+    } else if (pending_status == status && current_time - pending_timestamp >= INTERVAL) {
+      String message = format_change_message(status, duration);
 
-    update_status_data(status_data, status);
+      update_status_data(status_data, status);
 
-    if (is_manual_call) send_message(message, ADMIN_ID);
-    
-    send_message(message, CHANNEL_ID);
+      if (is_manual_call) send_message(message, ADMIN_ID);
+      
+      send_message(message, CHANNEL_ID);
+      pending_status = UNDEFINED;
+      pending_timestamp = 0;
+    } else if (pending_status != status) {
+      // status changed again, reset and set new pending
+      pending_status = status;
+      pending_timestamp = current_time;
+    }
   } else {
+    // no change, reset pending
+    pending_status = UNDEFINED;
+    pending_timestamp = 0;
     if (is_manual_call) send_message(format_current_message(status, duration), ADMIN_ID);
   }
 }

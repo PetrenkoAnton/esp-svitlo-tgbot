@@ -6,7 +6,7 @@ This project implements an ESP32 or ESP8266-based Telegram bot that monitors ele
 
 - **Periodic Status Monitoring**: Automatically checks electricity status every configured interval and posts updates to the admin and Telegram channel only when the status changes.
 - **Status Change Confirmation**: Implements a double-check mechanism where status changes are only reported after persisting for a full interval period to prevent false positives from network issues.
-- **Duration Formatting**: Displays outage durations with days for long periods (>24h), hours and minutes otherwise.
+- **Admin Notifications**: Provides real-time feedback to the admin about status change detection (pending), confirmation, and decline (when status returns to original).
 - **Admin Commands**:
   - `/start`: Shows available commands
   - `/status`: Displays comprehensive system information (connection status, IP, EEPROM write count)
@@ -59,7 +59,7 @@ This project implements an ESP32 or ESP8266-based Telegram bot that monitors ele
 
 1. Power on the ESP32/ESP8266 device.
 2. The bot will connect to WiFi, synchronize time via NTP, and start monitoring.
-3. Every `INTERVAL` seconds, it checks the status and posts to the admin and channel only if the electricity status has changed and persists for another interval.
+3. Every `INTERVAL` seconds, it checks the status and posts to the admin and channel only if the electricity status has changed and persists for another interval. The admin receives notifications for pending changes, confirmations, and declines.
 4. Send commands to the bot (admin only):
    - `/start`: Display help and available commands
    - `/status`: Get current connection status, IP, and EEPROM write count
